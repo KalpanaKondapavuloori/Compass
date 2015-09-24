@@ -1,0 +1,12 @@
+<script type="text/javascript">
+    $(document).ready(function(){
+        var rootPathDir = window.location.pathname.split('/')[1];
+        if(['issues','users','roles','projects','queues'].indexOf(rootPathDir) > -1)
+            $('nav ul.nav li a[href="/'+rootPathDir+'"]').parent().addClass('active');
+    });
+</script>
+<footer>
+    <p>&copy; PositiveEdge Technology 2014</p>
+</footer>
+</body>
+</html>

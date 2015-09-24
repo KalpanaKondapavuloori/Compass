@@ -1,0 +1,77 @@
+<% include ../header.ejs %>
+<div id="project">
+    <!-- Example row of columns -->
+    <div class="container">
+        <h3>Projects</h3>
+        <div class='gridButtonContainer'>
+            <% if(permissions.create){ %>
+                <a class="btn btn-success btn-small" href="/projects/new">Add New Project</a>
+            <% } %>
+        </div>
+        <% include ../pager.ejs %>
+        <table class="table table-hover table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" name="selected" id="inpSelectAll"></th>
+                    <th>Project Name</th>
+                    <th>Description</th>
+                    <% if(permissions.del){ %>
+                        <th><span class="icon-remove2"></th>
+                    <% } %>
+                </tr>
+            </thead>
+            <tbody>
+
+                <% if (locals.profiles && locals.profiles.length > 0) { %>
+                <% for (var i=0;i<profiles.length;++i) { %>
+                    <tr class="project" data-uid="<%= profiles[i].id %>">
+                        <td><input type="checkbox" name="selected" value=""></td>
+                        <td><%= profiles[i].name %></td>
+                        <td><%= profiles[i].description %></td>
+                        <% if(permissions.del){ %>
+                            <td><span class="icon-remove2 btn-remove" data-uid="<%= profiles[i].id %>"></td>
+                        <% } %>
+                    </tr>
+                <% } %>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+<% include ../scripts.ejs %>
+<script type="text/javascript">
+
+    $(document).ready(function(){
+        $('tr.project').on('click', function(ev){
+            var uid = $(this);
+            if($(ev.target).is(':checkbox'))
+                return;
+            uid = uid.attr('data-uid');
+            location.href = '/projects/'+uid+window.location.search;
+        });
+
+        $('input#inpSelectAll').on('change',function(ev){
+            if($(ev.target).prop('checked'))
+                $('tbody input[type=checkbox]').prop('checked',true);
+            else
+                $('tbody input[type=checkbox]').prop('checked',false);
+        });
+
+        $('span.btn-remove').on('click',function(ev){
+            ev.preventDefault();
+            ev.stopPropagation();
+            var uid = $(ev.target).attr('data-uid');
+            $.ajax({
+                url: '/projects/'+uid,
+                type: 'DELETE',
+                success: function(data){
+                    if(data && data.success)
+                        location.reload(false);
+                    else
+                        alert('Error occurred');
+                }
+            })
+        });
+    });
+</script>
+<% include ../footer.ejs %>

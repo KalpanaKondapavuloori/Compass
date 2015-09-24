@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Compass - User Summary</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel='stylesheet' href='/css/style.css' />
+    <link rel='stylesheet' href='/css/bootstrap.css' />
+    <link rel='stylesheet' href='/css/bootstrap-theme.css' />
+    <link rel="stylesheet" href='css/style1.css' />
+    <SCRIPT language="javascript">
+           var typespeed = 600;
+           var MessagePause = 1000;
+           var message = new Array();
+           var currMessage = 0;
+           var offset = 0;
+           message[0] = "Compass - User Summary";
+           message[1] = "Compass - User Summary";
+           function Display() {
+               var text = message[currMessage];
+               if (offset < text.length) {
+                   if (text.charAt(offset) == " ")
+                       offset++;
+                   var partMessage = text.substring(0, offset + 1);
+                   document.title = partMessage;
+                   offset++;
+                   setTimeout("Display()", typespeed);
+               } else {
+                   offset = 0;
+                   currMessage++;
+                   if (currMessage == message.length)
+                       currMessage = 0;
+                   setTimeout("Display()", MessagePause);
+               }
+           }
+           Display(); 
+        </SCRIPT>
+  </head>
+  <body class="login">
+
+
+<div id="header">
+  <div class="shell">
+    <!-- Logo + Top Nav -->
+    <div id="top">
+      <h1><a href="#">Compass</a></h1>
+      <div id="top-navigation">
+        Welcome <a href="#"><strong>Administrator</strong></a>
+        <span>|</span>
+        <a href="#">Help</a>
+        <span>|</span>
+        <a href="#">Profile Settings</a>
+        <span>|</span>
+        <a href="#">Log out</a>
+      </div>
+    </div>
+    <!-- End Logo + Top Nav -->
+    
+    <!-- Main Nav -->
+    <div id="navigation">
+      <ul>
+          <li><a href="#" class="active"><span>User Summary</span></a></li>
+          <li><a href="#"><span>User Role Settings</span></a></li>
+      </ul>
+    </div>
+    <!-- End Main Nav -->
+  </div>
+</div>
+
+<!-- End Header -->
+
+
+
+<!-- Container -->
+<div id="container">
+  <div class="shell">
+    
+ <!-- Action Button Header -->
+            <div class="left">
+              <input type="submit" class="button" value="NEW" />
+            </div>
+<!-- Action Button Header -->
+ 
+    <br />
+    <!-- Main -->
+    <div id="main">
+      <div class="cl">&nbsp;</div>
+      
+      <!-- Content -->
+      <div id="content">
+        
+        <!-- Box -->
+        <div class="box">
+          <!-- Box Head -->
+          <div class="box-head">
+            <h4 class="left">User Summary</h4>
+            <div class="right">
+              <label>search User</label>
+              <input type="text" class="field small-field" />
+              <input type="submit" class="button" value="search" />
+            </div>
+          </div>
+          <!-- End Box Head --> 
+
+          <!-- Table -->
+          <div class="table">
+            <table class="left" width="100%" border="0" cellspacing="0" cellpadding="0">
+              <tr width="100%" border="0" cellspacing="0" cellpadding="0">
+                <th width="13"><input type="checkbox" class="checkbox" /></th>
+                <th>User Name</th>
+                <th>Date</th>
+                <th>Added by</th>
+                <th width="110" class="ac">Content Control</th>
+              </tr>
+              <tr class="odd" width="100%" border="0" cellspacing="0" cellpadding="0">
+                <td><input type="checkbox" class="checkbox" /></td>
+                <td><h2>Pradeep Yadav</h2></td>
+                <td>10.07.14</td>
+                <td>Administrator</td>
+                <td><a href="#" class="ico del">Delete</a><a href="#" class="ico edit">Edit</a></td>
+              </tr>
+            </table>
+            
+            
+            <!-- Pagging -->
+            <div class="pagging">
+              <div class="left">Showing 1-5 of 14</div>
+              <div class="right">
+                <a href="#">Previous</a>
+                <a href="#">1</a>
+                <a href="#">2</a>
+                <a href="#">3</a>
+                <span>...</span>
+                <a href="#">Next</a>
+                <a href="#">View all</a>
+              </div>
+            </div>
+            <!-- End Pagging -->
+            
+          </div>
+          <!-- Table -->
+          
+        </div>
+        <!-- End Box -->
+    
+       </div>
+      <!-- End Content -->
+      
+     
+      <div class="cl">&nbsp;</div>      
+    </div>
+    <!-- Main -->
+  </div>
+</div>
+<!-- End Container -->
+
+<!-- Footer -->
+<footer id="footer1">
+    <span class="col-md-offset-5">&copy; PositiveEdge Technology 2014</span>
+</footer>
+<!-- End Footer -->
+
+   <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+       <script src="/js/jquery-2.1.1.js"></script>
+      <script src="/js/bootstrap.js"></script>
+  </body>
+</html>

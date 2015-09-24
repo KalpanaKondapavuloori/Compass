@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Compass - User Login</title>
+    <!-- Bootstrap core CSS -->
+    <link rel='stylesheet' href='/css/bootstrap.css' />
+    <link rel='stylesheet' href='/css/style.css' />
+</head>
+
+<body class="login">
+    <div class="container" id="login">
+        <!-- Example row of columns -->
+        <div class="row">
+            <div class="col-md-4 col-md-offset-4 shadow-bottom">
+                <h3>Compass Login</h3>
+                <% if(locals.err){ %>
+                    <div class="alert alert-danger" role="alert"><%= err %></div>
+                <% } else { %>
+                    <div class="alert alert-danger hidden" role="alert"></div>
+                <% } %>
+                <div class="alert alert-info" role="alert">If you do not have a Compass account, please contact your administrator.</div>
+                <form class="form-horizontal" role="form" action="/access/login" method="POST">
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <input type="email" name="email" class="form-control" id="inputEmail" placeholder="Email">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <input type="password" name="pass" class="form-control" id="inputPassword" placeholder="Password">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="col-sm-12">
+                            <button type="submit" class="btn btn-success  pull-right">Sign in</button>
+                        </div>
+                    </div>
+                    <input type="hidden" name="_csrf" class="form-control" value="<%= locals._csrf %>">
+                    <% if(locals.redirectTo){ %>
+                        <input type="hidden" name="redirectTo" class="form-control" value="<%= locals.redirectTo %>">
+                    <% } %>
+                    <div class="form-group" id="help">
+                        <div class="col-sm-6"><a class="" href="/access/reset">Forgot Password?</a></div>
+                        <div class="col-sm-6"><a href="#">Trouble Logging In?</a></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> <!-- /container -->
+<footer>
+    <p>&copy; PositiveEdge Technology 2014</p>
+</footer>
+<!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/js/jquery-2.1.1.js"></script>
+    <script src="/js/bootstrap.js"></script>
+
+    <script type="text/javascript">
+        var isEmailValid = function(email){
+            var matches = email.match(/[\w\.+]+@\w+\.[\w\.]+/g);
+            return (matches && matches[0] && matches[0] == email);
+        };
+
+        var showError = function(msg){
+            var alert = $('div.alert-danger');
+            alert.html(msg);
+            alert.removeClass('hidden');
+        };
+
+        $(document).ready(function(){
+            $('form').on('submit', function(ev){
+                var email = $('input#inputEmail').val();
+                var pass = $('input#inputPassword').val();
+
+                var msg = [];
+                if(!email.length)
+                    msg.push('Email cannot be empty.');
+                if(!pass.length)
+                    msg.push('Password cannot be empty.');
+                if(email.length && !isEmailValid(email))
+                    msg.push('Invalid email address.')
+
+                if(msg.length){
+                    msg = 'Please correct the following errors: <br>' + msg.join('<br>');
+                    showError(msg);
+                    ev.preventDefault();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

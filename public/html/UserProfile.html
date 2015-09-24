@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Compass</title>
+    <link rel='stylesheet' href='/css/style.css' />
+    <link rel='stylesheet' href='/css/bootstrap.css' />
+    <link rel='stylesheet' href='/css/bootstrap-theme.css' />
+  </head>
+  <body>
+      <script src="/js/jquery-2.1.1.js"></script>
+      <script src="/js/bootstrap.js"></script>
+
+<div class="container">
+      <div class="row">
+      <div class="col-md-5  toppad  pull-right col-md-offset-3 ">
+      </div>
+        <div class="col-xs-12 col-sm-12 col-md-6 col-lg-6 col-xs-offset-0 col-sm-offset-0 col-md-offset-3 col-lg-offset-3 toppad" >
+
+          <div class="panel panel-info">
+            <div class="panel-heading">
+              <h3 class="panel-title">User Profile</h3>
+            </div>
+            <div class="panel-body">
+              <div class="row">
+                <div class="col-md-3 col-lg-3 " align="center"> <img alt="User Pic" src="/images/photo.png" class="img-circle"> </div>
+                <div class=" col-md-9 col-lg-9 ">
+                  <table class="table table-user-information">
+                    <tbody>
+                        <td>First Name:</td>
+                        <td><input type="text" name="txtFirstName"></td>
+                      </tr>
+                      <tr>
+                        <td>Last Name:</td>
+                        <td><input type="text" name="txtLastName"></td>
+                      </tr>
+                      <tr>
+                        <td>Description:</td>
+                        <td><textarea name="txtDescription"></textarea></td>
+                      </tr>
+                         <tr>
+                             <tr>
+                        <td>Role: </td>
+                        <td><select name="roleList">
+              <option value="admin">Admin</option>
+              <option value="developer">Developer</option>
+              <option value="QA">QA</option>
+            </select></td>
+                      </tr>
+                         <tr>
+                        <td>Email</td>
+                        <td><input type="text" name="txtEmail"></td>
+                      </tr>
+                        <td>Phone Number</td>
+                        <td><input type="text" name="txtPhoneNumber"></td>
+                        </td>
+
+                      </tr>
+
+                    </tbody>
+                  </table>
+
+
+                </div>
+              </div>
+            </div>
+                 <div class="panel-footer">
+                        <a href="#" class="btn btn-primary">Change Password</a>
+                        <span class="pull-right">
+                            <a href="#" data-original-title="Submit" data-toggle="tooltip" type="button" class="btn btn-sm btn-warning"><i class="glyphicon glyphicon-edit"></i></a>
+                            <a data-original-title="Cancel" data-toggle="tooltip" type="button" class="btn btn-sm btn-danger"><i class="glyphicon glyphicon-remove"></i></a>
+                        </span>
+                    </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

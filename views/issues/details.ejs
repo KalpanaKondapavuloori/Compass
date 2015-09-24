@@ -1,0 +1,445 @@
+<% include ../header.ejs %>
+<div id="issue-details">
+	<!-- Example row of columns -->
+	<div class="container">
+		<% if(locals.err){ %>
+			<div class="alert alert-danger" role="alert"><%= err %></div>
+		<% } %>
+		<% if(locals.msg){ %>
+			<div class="alert alert-info alert-dismissible" role="alert">
+			  <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+			  <%= msg %>
+			</div>
+		<% } %>
+		<% if(!permissions.read){ %>
+			<div class="alert alert-danger" role="alert">You do not have permission to view this page.</div>
+		<% } else { %>
+			<% if(!locals.errOnly){ %>
+				<% var toPage = locals.toPage && parseInt(locals.toPage); toPage = isNaN(toPage) ? '' : '?page=' + toPage %>
+				<form class="form-horizontal" role="form" action="/issues/<% var issueID = (locals.issue && issue.id) || '' %><%= issueID %>" method="POST">
+					<% if(permissions.create && !locals.issue){ %>
+						<div class="header">
+							<div class="icon col-sm-2">
+								<span class="icon-bug collection-detail-icon"></span>
+							</div>
+							<div class="title col-sm-10">
+								<div>
+                                    <input type="text" name="subject" class="form-control" id="inputSummary" placeholder="Issue Summary" value="<%= data.subject %>">
+								</div>
+								<h5>
+									<div class="pull-left">
+										<input type="text" name="externalID" class="form-control" id="inputExternalID" placeholder="SFDC Issue ID" value="<%= data.externalID %>">
+									</div>
+									<div class="pull-right">
+										<input type="text" name="tenant" class="form-control" id="inputTenant" placeholder="Tenant" value="<%= data.tenant %>">
+									</div>
+								</h5>
+							</div>
+						</div>
+						<hr>
+						<div class="outer-section">
+                            <div class="form-group col-sm-12">
+                                <label class="sr-only" for="inputStatus">Status</label>
+                                <div class="input-group">
+                                    <div class="input-group-addon">Status</div>
+                                    <input type="text" class="form-control" id="inputStatus" placeholder="Issue Status" value="<%= data.status %>" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                <label class="sr-only" for="inputExternalURL">External URL</label>
+                                <div class="input-group">
+                                    <div class="input-group-addon">External URL</div>
+                                    <input type="text" name="externalURL" class="form-control" id="inputExternalURL" placeholder="SFDC Issue URL" value="<%= data.externalURL %>">
+                                </div>
+                            </div>
+							<div class="form-group col-sm-12">
+								<div class="">
+									<textarea name="description" class="form-control" id="inputDescription" placeholder="Issue description"><%= data.description %></textarea>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-6 section firstSection">
+							<div class="section-header">
+								<div class="form-group">
+									<label class="col-sm-2 control-label">External</label>
+								</div>
+							</div>
+							<div class="section-content">
+								<div class="form-group">
+									<label for="inputCategory" class="col-sm-2 control-label">Category</label>
+									<div class="col-sm-10">
+										<input type="text" name="externalCategory" class="form-control" id="inputCategory" placeholder="SFDC Category" value="<%= data.externalCategory %>">
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="inputExtSeverity" class="col-sm-2 control-label">Severity</label>
+									<div class="col-sm-10">
+										<input type="text" name="externalSeverity" class="form-control" id="inputExtSeverity" placeholder="SFDC Severity" value="<%= data.externalSeverity %>">
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-6 section">
+							<div class="section-header">
+								<div class="form-group">
+									<label class="col-sm-2 control-label">Internal</label>
+								</div>
+							</div>
+							<div class="section-content">
+								<div class="form-group">
+									<label for="inputQueue" class="col-sm-2 control-label">Queue</label>
+									<div class="col-sm-10">
+										<select name="queue" class="form-control">
+											<option value="0">Select Queue</option>
+											<% for(var i=0;i<queues.length;++i){ %>
+												<option value="<%= queues[i].id %>" <% if((data.queue && data.queue == queues[i].id) || (!data.queue && queues[i].default)){ %>selected<% } %> ><%= queues[i].name %></option>
+											<% } %>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="inputSeverity" class="col-sm-2 control-label">Severity</label>
+									<div class="col-sm-10">
+										<input type="text" name="severity" class="form-control" id="inputSeverity" placeholder="SFDC Severity" value="<%= data.severity %>">
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="form-group form-footer">
+							<div class="col-sm-12">
+								<div>
+									<input type="hidden" name="_csrf" class="form-control" value="<%= locals._csrf %>">
+									<a href="/issues<%= toPage %>" class="btn btn-primary btn-back">Back to Issues List</a>
+									<button type="submit" class="btn btn-success">Create Issue</button>
+								</div>
+							</div>
+						</div>
+					<% } else if(permissions.update && locals.issue) { %>
+						<div class="header">
+							<div class="icon col-sm-2">
+								<span class="icon-bug collection-detail-icon"></span>
+							</div>
+							<div class="title col-sm-10">
+                                <input type="text" name="subject" class="form-control" id="inputSummary" placeholder="Issue Summary" value="<%= issue.subject %>">
+								<h5>
+									<div class="pull-left">
+										<input type="text" name="externalID" class="form-control" id="inputExternalID" placeholder="SFDC Issue ID" value="<%= issue.external_id %>">
+									</div>
+									<div class="pull-right">
+										<input type="text" name="tenant" class="form-control" id="inputTenant" placeholder="Tenant" value="<%= issue.tenant %>">
+									</div>
+								</h5>
+							</div>
+						</div>
+						<hr>
+						<div class="outer-section">
+                            <div class="form-group col-sm-12">
+                                <label class="sr-only" for="inputID">Issue ID</label>
+                                <div class="input-group">
+                                    <div class="input-group-addon">Issue ID</div>
+                                    <input type="text" class="form-control" id="inputID" placeholder="Issue ID" value="<%= issue.id %>" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-12">
+                                <label class="sr-only" for="inputStatus">Status</label>
+                                <div class="input-group">
+                                    <div class="input-group-addon">Status</div>
+                                    <input type="text" class="form-control" id="inputStatus" placeholder="Issue Status" value="<%= issue.status %>" disabled>
+                                </div>
+                            </div>
+							<div class="form-group col-sm-12">
+								<label class="sr-only" for="inputExternalURL">External URL</label>
+								<div class="input-group">
+									<div class="input-group-addon">External URL</div>
+									<input type="text" name="externalURL" class="form-control" id="inputExternalURL" placeholder="" value="<%= issue.external_url %>">
+								</div>
+							</div>
+							<div class="form-group col-sm-12">
+								<label class="sr-only" for="inputOwner">Current Owner</label>
+								<div class="input-group">
+									<div class="input-group-addon">Current Owner</div>
+									<input type="text" class="form-control" id="inputOwner" placeholder="Nobody" value="<%= locals.currentOwner %>" disabled>
+								</div>
+							</div>
+							<div class="form-group col-sm-12">
+								<div class="">
+									<textarea name="description" class="form-control" id="inputDescription" placeholder="Issue description"><%= issue.description %></textarea>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-6 section firstSection">
+							<div class="section-header">
+								<div class="form-group">
+									<label class="col-sm-2 control-label">External</label>
+								</div>
+							</div>
+							<div class="section-content">
+								<div class="form-group">
+									<label for="inputCategory" class="col-sm-2 control-label">Category</label>
+									<div class="col-sm-10">
+										<input type="text" name="externalCategory" class="form-control" id="inputCategory" placeholder="SFDC Category" value="<%= issue.external_category %>">
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="inputExtSeverity" class="col-sm-2 control-label">Severity</label>
+									<div class="col-sm-10">
+										<input type="text" name="externalSeverity" class="form-control" id="inputExtSeverity" placeholder="SFDC Severity" value="<%= issue.external_severity %>">
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-6 section">
+							<div class="section-header">
+								<div class="form-group">
+									<label class="col-sm-2 control-label">Internal</label>
+								</div>
+							</div>
+							<div class="section-content">
+								<div class="form-group">
+									<label for="inputQueue" class="col-sm-2 control-label">Queue</label>
+									<div class="col-sm-10">
+										<select name="queue" class="form-control">
+											<option value="0">Select Queue</option>
+											<% for(var i=0;i<queues.length;++i){ %>
+												<option value="<%= queues[i].id %>" <% if(queues[i].id == issue.queue){ %>selected<% } %> ><%= queues[i].name %></option>
+											<% } %>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="inputSeverity" class="col-sm-2 control-label">Severity</label>
+									<div class="col-sm-10">
+										<input type="text" name="severity" class="form-control" id="inputSeverity" placeholder="SFDC Severity" value="<%= issue.severity %>">
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-6 section firstSection no-border">
+							<div class="section-header">
+								<div class="form-group">
+									<label class="col-sm-12 control-label lalign">First created on <%= issue.created_on %> by <%= issue.created_by %>.</label>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-6 section no-border">
+							<div class="section-header">
+								<div class="form-group">
+									<label class="col-sm-12 control-label lalign">Last modified on <%= issue.created_on %> by <%= issue.modified_by %>.</label>
+								</div>
+							</div>
+						</div>
+                        <div class="form-group form-footer">
+                            <div class="col-sm-12">
+                                <div>
+                                    <a href="/issues<%= toPage %>" class="btn btn-primary btn-back">Back to Issues List</a>
+                                    <button type="submit" class="btn btn-success">Update Issue</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <h3>Issue activity</h3>
+                        </div>
+						<div class="col-md-12">
+                            <table class="table table-hover table-striped table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Assigned By</th>
+                                        <th>Assigned To</th>
+                                        <th>Comments</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (locals.activity && locals.activity.length > 0) { %>
+                                        <% for (var i=0;i<activity.length;++i) { %>
+                                        <tr class="activityRow" data-uid="<%= activity[i].id %>">
+                                            <td><%= activity[i].created_on %></td>
+                                            <td><%= activity[i].assigned_by %></td>
+                                            <td><%= activity[i].assigned_to %></td>
+                                            <td><%= activity[i].comments %></td>
+                                        </tr>
+                                        <% } %>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+						<div class="form-group form-footer">
+							<div class="col-sm-12">
+								<div>
+									<input type="hidden" name="_csrf" class="form-control" value="<%= locals._csrf %>">
+									<a href="/issues<%= toPage %>" class="btn btn-primary btn-back">Back to Issues List</a>
+									<button type="submit" class="btn btn-success">Update Issue</button>
+								</div>
+							</div>
+						</div>
+					<% }  else if(locals.issue) { %>
+						<div class="header">
+							<div class="icon col-sm-2">
+								<span class="icon-bug collection-detail-icon"></span>
+							</div>
+							<div class="title col-sm-10">
+								<h3>
+									<a href="<%= issue.external_url %>" target="_blank"><%= issue.external_id %>: <%= issue.subject %></a>
+								</h3>
+								<h5>
+									<div class="pull-left">
+										<%= issue.tenant %>
+									</div>
+								</h5>
+							</div>
+						</div>
+						<hr>
+						<div class="outer-section">
+                            <div class="form-group col-sm-12">
+                                <label class="sr-only" for="inputStatus">Status</label>
+                                <div class="input-group">
+                                    <div class="input-group-addon">Status</div>
+                                    <input type="text" class="form-control" id="inputStatus" placeholder="Issue Status" value="<%= issue.status %>" disabled>
+                                </div>
+                            </div>
+							<div class="form-group col-sm-12">
+								<label class="sr-only" for="inputOwner">Current Owner</label>
+								<div class="input-group">
+									<div class="input-group-addon">Current Owner</div>
+									<input type="text" class="form-control" id="inputOwner" placeholder="Nobody" value="<%= locals.currentOwner %>" disabled>
+								</div>
+							</div>
+							<div class="form-group col-sm-12">
+								<div class="">
+									<%= issue.description %>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-6 section firstSection">
+							<div class="section-header">
+								<div class="form-group">
+									<label class="col-sm-2 control-label">External</label>
+								</div>
+							</div>
+							<div class="section-content">
+								<div class="form-group">
+									<label for="inputCategory" class="col-sm-2 control-label">Category</label>
+									<div class="col-sm-10">
+										<input type="text" name="externalCategory" class="form-control" id="inputCategory" placeholder="SFDC Category" value="<%= issue.external_category %>" disabled>
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="inputExtSeverity" class="col-sm-2 control-label">Severity</label>
+									<div class="col-sm-10">
+										<input type="text" name="externalSeverity" class="form-control" id="inputExtSeverity" placeholder="SFDC Severity" value="<%= issue.external_severity %>" disabled>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-6 section">
+							<div class="section-header">
+								<div class="form-group">
+									<label class="col-sm-2 control-label">Internal</label>
+								</div>
+							</div>
+							<div class="section-content">
+								<div class="form-group">
+									<label for="inputQueue" class="col-sm-2 control-label">Queue</label>
+									<div class="col-sm-10">
+										<% var queueName = ''; for(var i=0;i<queues.length;++i){ queueName = (queues[i].id == issue.queue) ? queues[i].name : queueName; } %>
+										<input type="text" name="queue" class="form-control" id="inputQueue" placeholder="SFDC Category" value="<%= queueName %>" disabled>
+									</div>
+								</div>
+								<div class="form-group">
+									<label for="inputSeverity" class="col-sm-2 control-label">Severity</label>
+									<div class="col-sm-10">
+										<input type="text" name="severity" class="form-control" id="inputSeverity" placeholder="SFDC Severity" value="<%= issue.severity %>" disabled>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-6 section firstSection no-border">
+							<div class="section-header">
+								<div class="form-group">
+									<label class="col-sm-12 control-label lalign">First created on <%= issue.created_on %> by <%= issue.created_by %>.</label>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-6 section no-border">
+							<div class="section-header">
+								<div class="form-group">
+									<label class="col-sm-12 control-label lalign">Last modified on <%= issue.created_on %> by <%= issue.modified_by %>.</label>
+								</div>
+							</div>
+						</div>
+						<div class="col-md-12">
+                            <table class="table table-hover table-striped table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Assigned By</th>
+                                        <th>Assigned To</th>
+                                        <th>Comments</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (locals.activity && locals.activity.length > 0) { %>
+                                        <% for (var i=0;i<activity.length;++i) { %>
+                                        <tr class="activityRow" data-uid="<%= activity[i].id %>">
+                                            <td><%= activity[i].created_on %></td>
+                                            <td><%= activity[i].assigned_by %></td>
+                                            <td><%= activity[i].assigned_to %></td>
+                                            <td><%= activity[i].comments %></td>
+                                        </tr>
+                                        <% } %>
+                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+						<div class="form-group form-footer">
+							<div class="col-sm-12">
+								<div>
+									<input type="hidden" name="_csrf" class="form-control" value="<%= locals._csrf %>">
+									<a href="/issues<%= toPage %>" class="btn btn-primary btn-back">Back to Issues List</a>
+								</div>
+							</div>
+						</div>
+					<% } %>
+				</form>
+			<% } %>
+		<% } %>
+	</div>
+</div>
+<% include ../scripts.ejs %>
+<script type="text/javascript">
+	var getFormInputParent = function(target){
+		var $target = $(target);
+		var parent = $target.parents('.form-group');
+		return parent.length ? parent : $target.parent();
+	};
+
+	var validateForm = function($form){
+		var mandatoryFields = ['subject','externalID','tenant','description','queue'];
+		var missingFields = [];
+
+		for(var i=mandatoryFields.length-1;i>=0;--i){
+			var $e = $form.find('[name='+mandatoryFields[i]+']');
+			var val = $e.val();
+			if(!val.length || (mandatoryFields[i] == 'queue' && !parseInt(val))){
+			 	missingFields.push($e);
+			}
+		}
+
+		for(var i=0;i<missingFields.length;++i){
+			getFormInputParent(missingFields[i]).addClass('has-error');
+		}
+
+		$('form .has-error .form-control').on('change', function(ev){
+			getFormInputParent(this).removeClass('has-error');
+		});
+
+		return !!missingFields.length;
+	};
+
+	$(document).ready(function(){
+        <% if(locals.err){ %>
+            validateForm($('form'));
+        <% } %>
+	});
+</script>
+<% include ../footer.ejs %>

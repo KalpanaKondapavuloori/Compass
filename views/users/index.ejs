@@ -1,0 +1,113 @@
+<% include ../header.ejs %>
+<div id="user">
+
+    <!-- Example row of columns -->
+    <div class="container">
+        <h3>Users</h3>
+        <% if(locals.err){ %>
+            <div class="alert alert-danger" role="alert"><%= err %></div>
+        <% } %>
+        <% if(!permissions.read){ %>
+            <div class="alert alert-danger" role="alert">You do not have permission to view this page.</div>
+        <% } else { %>
+            <div class='gridButtonContainer'>
+                <% if(permissions.create){ %>
+                    <a class="btn btn-success btn-small" href="/users/new">Add New User</a>
+                <% } %>
+            </div>
+            <% include ../pager.ejs %>
+            <table class="table table-hover table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" name="selected" id="inpSelectAll"></th>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Email</th>
+                        <% if(permissions.del){ %>
+                            <th>Status</th>
+                        <% } %>
+                        </tr>
+                </thead>
+                <tbody>
+                    <% if (locals.profiles && profiles.length > 0) { %>
+                        <% for (var i=0;i<profiles.length;++i) { %>
+                            <tr class="user" data-uid="<%= profiles[i].id%>">
+                                <td><input type="checkbox" name="selected" value=""></td>
+                                <td><%= profiles[i].name %></td>
+                                <td><%= profiles[i].role %></td>
+                                <td><%= profiles[i].email%></td>
+                                <% if(permissions.del){ %>
+                                    <% var statusClassName = profiles[i].active ? 'active' : 'inactive'; %>
+                                    <td><span class="<%= statusClassName %> btn-remove icon-circle-full" data-uid="<%= profiles[i].id %>"  data-active="<%=profiles[i].active%>" data-target="#mdlDeleteUser"></td>
+                                <% } %>
+                            </tr>
+                        <% } %>
+                    <% } %>
+                </tbody>
+            </table>
+        <% } %>
+    </div>
+</div>
+<div class="modal fade" id="mdlDeleteUser">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title">Are you sure?</h4>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to <span class="mdlDelUserAction">disable</span> this user?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger"><span class="mdlDelUserAction">disable</span> User</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<% include ../scripts.ejs %>
+<script type="text/javascript">
+    $('tr.user').on('click', function(ev){
+        var uid = $(this);
+        if($(ev.target).is(':checkbox'))
+            return;
+        uid = uid.attr('data-uid');
+        location.href = '/users/'+uid+window.location.search;
+    });
+
+    $('input#inpSelectAll').on('change',function(ev){
+        if($(ev.target).prop('checked'))
+            $('tbody input[type=checkbox]').prop('checked',true);
+        else
+            $('tbody input[type=checkbox]').prop('checked',false);
+    });
+
+    $('span.btn-remove').on('click',function(ev){
+        var active = parseInt($(this).attr('data-active'));
+        active = isNaN(active) ? 0 : active;
+
+        $('span.mdlDelUserAction').text(active ? 'disable' : 'enable');
+
+        ev.preventDefault();
+        ev.stopPropagation();
+        var uid = $(this).attr('data-uid');
+        $('div#mdlDeleteUser button.btn.btn-danger').on('click', function(ev){
+            ev.preventDefault();
+            ev.stopPropagation();
+            $('#mdlDeleteUser').modal('hide');
+            $.ajax({
+                url: '/users/'+uid,
+                type: 'post',
+                data: {active: active ? 0 : 1, action: 'status', _csrf: '<%= locals._csrf %>'},
+                success: function(data){
+                     if(data && data.success)
+                        location.reload(false);
+                    else
+                        alert('Error occurred');
+                }
+            })
+        });
+        $('#mdlDeleteUser').modal();
+    });
+</script>
+<% include ../footer.ejs %>

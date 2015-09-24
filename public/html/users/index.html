@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Users | Compass</title>
+    <link rel='stylesheet' href='/css/bootstrap.css' />
+    <link rel='stylesheet' href='/css/icomoon.css' />
+    <link rel='stylesheet' href='/css/style.css' />
+</head>
+<body>
+    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#"><img src="/img/logo.png">Compass</a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li><a href="#">Issues</a></li>
+                    <li class="active"><a href="#">Users</a></li>
+                    <li><a href="#">Knowledge Base</a></li>
+                </ul>
+<!--
+<form class="navbar-form navbar-left" role="search">
+<div class="form-group">
+<input type="text" class="form-control" placeholder="Search">
+</div>
+<button type="submit" class="btn btn-default">Submit</button>
+</form>
+-->
+<ul class="nav navbar-nav navbar-right">
+    <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Balaganesh Damodaran <span class="caret"></span></a>
+        <ul class="dropdown-menu" role="menu">
+            <li><a href="/user/profile.html">Profile</a></li>
+            <li><a href="/user/account.html">Account</a></li>
+            <li class="divider"></li>
+            <li><a href="#">Logout</a></li>
+        </ul>
+    </li>
+</ul>
+</div><!-- /.navbar-collapse -->
+</div><!-- /.container-fluid -->
+</nav>
+<div id="user">
+    <!-- Example row of columns -->
+    <div class="container">
+        <h3>Users</h3>
+        <div class='gridButtonContainer'>
+            <button type="button" class="btn btn-success btn-small">Add New User</button>
+        </div>
+        <table class="table table-hover table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" name="selected"></th>
+                    <th>Name</th>
+                    <th>Role</th>
+                    <th>Email</th>
+                    <th><span class="icon-remove2"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input type="checkbox" name="selected" value=""></td>
+                    <td>Avishek Kumar Singh</td>
+                    <td>QA</td>
+                    <td>avishekks@positiveedge.net</td>
+                    <td><span class="icon-remove2"></td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" name="selected" value=""></td>
+                    <td>Akshay Kamble</td>
+                    <td>Developer</td>
+                    <td>akshayk@positiveedge.net</td>
+                    <td><span class="icon-remove2"></td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" name="selected" value=""></td>
+                    <td>Pabitra Ray</td>
+                    <td>Admin</td>
+                    <td>pray@servicesource.com</td>
+                    <td><span class="icon-remove2"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<footer>
+    <p>&copy; PositiveEdge Technology 2014</p>
+</footer>
+<script src="/js/jquery-2.1.1.js"></script>
+<script src="/js/bootstrap.js"></script>
+</body>
+</html>

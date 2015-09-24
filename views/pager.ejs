@@ -1,0 +1,34 @@
+<div class="paginationContainer">
+    <ul class="pagination">
+        <%
+            if(locals.pagerDetails){
+                var buttonCount = pagerDetails.buttonCount;
+                var pageSize = pagerDetails.pageSize;
+                if(locals.pagerDetails.currentPage == null || locals.pagerDetails.currentPage == undefined)
+                    locals.pagerDetails.currentPage = 1;
+                if (locals.pagerDetails.totalRecords && locals.pagerDetails.totalRecords > 0  &&
+                        locals.pagerDetails.currentPage && locals.pagerDetails.currentPage > 0) {
+                    var startPage = ((Math.ceil(locals.pagerDetails.currentPage/buttonCount) - 1)*buttonCount) + 1;
+                    var endPage = (startPage+buttonCount);
+                    var maxPages = Math.ceil(locals.pagerDetails.totalRecords/pageSize);
+                    if(maxPages > 1){
+                        if(endPage > maxPages)
+                            endPage = maxPages + 1;
+                        if(startPage > 1){ %>
+                            <li><a href="/<%=pagerDetails.url%>page=<%= (startPage-1) %>">&laquo;</a></li>
+                       <% }
+                        for (var i=startPage;i<endPage;i++) {
+                            if(i==locals.pagerDetails.currentPage){%>
+                                <li><a href="#" class="selected"><%= i %></a></li>
+                            <%}else{%>
+                                <li><a href="/<%=pagerDetails.url%>page=<%= i %>"><%= i %></a></li>
+                            <%}
+                         }
+                        if(endPage <= maxPages){ %>
+                            <li><a href="/<%=pagerDetails.url%>page=<%= endPage %>">&raquo;</a></li>
+                        <%}
+                    }
+                }
+            }%>
+    </ul><br/>
+</div>

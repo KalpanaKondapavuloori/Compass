@@ -1,0 +1,708 @@
+<% include ../header.ejs %>
+<div id="issues">
+	<!-- Example row of columns -->
+	<div class="container">
+		<h3>Issues</h3>
+		<% if(locals.err){ %>
+			<div class="alert alert-danger" role="alert"><%= err %></div>
+		<% } %>
+		<div class='gridButtonContainer'>
+			<div class="filter">
+				<select class="col-sm-4 form-control" id="issue-filter">
+					<option value="all">All Issues</option>
+					<option value="my">My Issues</option>
+				</select>
+			</div>
+
+			<% if(permissions.create){ %>
+				<a class="btn btn-success btn-small" href="/issues/new">Create New Issue</a>
+			<% } %>
+			<% if(permissions.assignDev){ %>
+				<a class="btn btn-success btn-small" id="assign-to" data-toggle="modal" href="">Assign To</a>
+			<% } %>
+			<% if(permissions.take){ %>
+				<a class="btn btn-success btn-small" id="take-issue" data-toggle="modal" href="">Take Issue</a>
+			<% } %>
+			<% if(permissions.resolve){ %>
+				<a class="btn btn-success btn-small" id="result-qa" data-toggle="modal" href="">Resolve Issue</a>
+			<% } %>
+			<% if(permissions.assignQA){ %>
+				<a class="btn btn-success btn-small" id="assign-qa" data-toggle="modal" href="">Assign to QA</a>
+			<% } %>
+			<% if(permissions.release){ %>
+				<a class="btn btn-success btn-small" id="release-issue" data-toggle="modal" href="">Release Issue</a>
+			<% } %>
+			<% if(permissions.close){ %>
+				<a class="btn btn-success btn-small" id="close-issue" data-toggle="modal" href="">Close Issue</a>
+			<% } %>
+			<% if(permissions.reopen){ %>
+				<a class="btn btn-success btn-small" id="reopen-issue" data-toggle="modal" href="">Re-Open Issue</a>
+			<% } %>
+			<% if(permissions.export){ %>
+				<a class="btn btn-success btn-small" id="export-issue" data-toggle="modal" href="">Export Issues</a>
+			<% } %>
+		</div>
+		<div class='vsbContainer'>
+			<form class="form-inline" action="/issues" method="GET">
+                <div class="form-group">
+                    <label class="sr-only" for="inputID">ID</label>
+                    <div class="input-group">
+                        <div class="input-group-addon">ID</div>
+                        <input type="text" class="form-control" id="inputID" name="id" placeholder="Issue ID" value="<%= search.id %>">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="sr-only" for="inputExternalID">ExtID</label>
+                    <div class="input-group">
+                        <div class="input-group-addon">ExtID</div>
+                        <input type="text" class="form-control" id="inputExternalID" name="external_id" placeholder="External ID" value="<%= search.external_id %>">
+                    </div>
+                </div>
+				<div class="form-group">
+					<label class="sr-only" for="inputQueue">Queue</label>
+					<div class="input-group">
+						<div class="input-group-addon">Queue</div>
+						<input type="text" class="form-control" id="inputQueue" name="queue" placeholder="Queue" value="<%= search.queue %>">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="sr-only" for="inputStatus">Status</label>
+					<div class="input-group">
+						<div class="input-group-addon">Status</div>
+						<input type="text" class="form-control" id="inputStatus" name="status" placeholder="Status" value="<%= search.status %>">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="sr-only" for="inputTenant">Tenant</label>
+					<div class="input-group">
+						<div class="input-group-addon">Tenant</div>
+						<input type="text" class="form-control" id="inputTenant" name="tenant" placeholder="Tenant" value="<%= search.tenant %>">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="sr-only" for="inputText">Text</label>
+					<div class="input-group">
+						<div class="input-group-addon">Text</div>
+						<input type="text" class="form-control" id="inputText" name="subject" placeholder="Summary or Description" value="<%= search.text %>">
+					</div>
+				</div>
+                <div class="form-group">
+                    <label class="sr-only" for="fromdate">From</label>
+                    <div class='input-group date' id='fromdate'>
+                        <div class="input-group-addon">From</div>
+                        <input type='text' class="form-control" name="fromdate" value="<%= search.fromdate %>"/>
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="sr-only" for="todate">To</label>
+                    <div class='input-group date' id='todate'>
+                        <div class="input-group-addon">To</div>
+                        <input type='text' class="form-control" name="todate" value="<%= search.todate %>" />
+                        <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+				<button type="submit" class="btn btn-primary">Search</button>
+			</form>
+		</div>
+		<% include ../pager.ejs %>
+
+			<table class="table table-hover table-striped table-bordered">
+				<thead>
+					<tr>
+						<th><input type="checkbox" name="selected" id="inpSelectAll"></th>
+                        <th>Id</th>
+						<th>External Id</th>
+						<th>Tenant</th>
+						<th>Queue</th>
+						<th>Subject</th>
+						<th>Status</th>
+						<th>Current Owner</th>
+                        <% if(permissions['delete']){ %>
+						  <th><span class="icon-remove2"></span></th>
+                        <% } %>
+					</tr>
+				</thead>
+				<tbody>
+					<% if (locals.issues && locals.issues.length > 0) { %>
+						<% for (var i=0;i<issues.length;++i) { %>
+						<tr class="issueRow" data-uid="<%= issues[i].id %>" data-extId="<%= issues[i].issueid %>">
+							<td><input type="checkbox" name="selected" data-uid="<%= issues[i].id %>" data-extId="<%= issues[i].issueid %>" value=""></td>
+                            <td><%= issues[i].id %></td>
+							<td><%= issues[i].issueid %></td>
+							<td><%= issues[i].tenant %></td>
+							<td><%= issues[i].queue %></td>
+							<td><%= issues[i].subject %></td>
+							<td><%= issues[i].status %></td>
+							<td><%= issues[i].currentOwner %></td>
+                            <% if(permissions['delete']){ %>
+    							<td><span class="icon-remove2 btn-remove" data-uid="<%= issues[i].id %>" data-target="#mdlDeleteIssue"></span></td>
+                            <% } %>
+						</tr>
+						<% } %>
+					<% } %>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="alert-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content">
+			<div class="alert alert-danger" role="alert"></div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade issue-modal" id="assign-to-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content" style="text-align:center; margin: 0 auto; padding-top:30px;margin-left:30;">
+			<form class="form-horizontal" id="assign-form" role="form" action="/issues/assignIssueToDeveloper" method="POST">
+				<div class="form-group">
+					<label for="inputIssueIDs" class="col-sm-2 control-label">Issue IDs</label>
+					<div class="col-md-5">
+						<input type="text" class="form-control" id="inputIssueIDs" placeholder="SFDC Issue ID" disabled>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="inputEmail" class="col-sm-2 control-label">Assign To</label>
+					<input type="hidden" id="_csrf" name="_csrf" class="form-control" value="<%= locals._csrf %>">
+					<div class="col-md-5">
+						<select class="col-sm-4 form-control" id="assignee" name="assignee">
+						</select>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="inputEmail" class="col-sm-2 control-label">Comments</label>
+					<div class="col-md-5">
+						<textarea cols="4" class="form-control" name="comments" id="assign-to-comments" ></textarea>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-primary submit-issues" id="btnAssignTo" data-dismiss="modal">Assign Issue</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade issue-modal" id="assign-qa-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content" style="text-align:center; margin: 0 auto; padding-top:30px;margin-left:30;">
+			<form class="form-horizontal" id="assign-form" role="form" action="/issues/assignIssueToDeveloper" method="POST">
+				<div class="form-group">
+					<label for="inputIssueIDs" class="col-sm-2 control-label">Issue IDs</label>
+					<div class="col-md-5">
+						<input type="text" class="form-control" id="inputIssueIDs" placeholder="SFDC Issue ID" disabled>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="inputEmail" class="col-sm-2 control-label">Assign To</label>
+					<input type="hidden" id="_csrf" name="_csrf" class="form-control" value="<%= locals._csrf %>">
+					<div class="col-md-5">
+						<select class="col-sm-4 form-control" id="assignee-qa" name="assignee">
+						</select>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="inputEnvironment" class="col-sm-2 control-label">Environment</label>
+					<div class="col-md-5">
+						<input type="text" class="form-control" id="assign-qa-environment">
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="inputEmail" class="col-sm-2 control-label">Test Case</label>
+					<div class="col-md-5">
+						<textarea cols="4" class="form-control" name="comments" id="assign-qa-comments" ></textarea>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-primary submit-issues" id="btnAssignQA" data-dismiss="modal">Assign Issue</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+
+<div class="modal fade" id="issue-result-qa-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content" style="text-align:center; margin: 0 auto; padding-top:30px;margin-left:30;">
+			<form class="form-horizontal" id="result-qa" role="form" method="POST">
+				<div class="form-group">
+					<label for="inputIssueIDs" class="col-sm-2 control-label">Issue IDs</label>
+					<div class="col-md-5">
+						<input type="text" class="form-control" id="inputIssueIDs" placeholder="SFDC Issue ID" disabled>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="inputEmail" class="col-sm-2 control-label">Comments</label>
+					<div class="col-md-5">
+						<textarea cols="4" class="form-control" name="comments" id="result-qa-comments" ></textarea>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="inputEmail" class="col-sm-2 control-label">Result</label>
+					<div class="col-md-5">
+						<select class="col-sm-4 form-control" id='result'>
+							<option value="pass" class="result-qa">Pass</option>
+							<option value="fail" class="result-qa">Fail</option>
+						</select>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-primary" id="btnResultQA">Resolve</button>
+				</div>
+			</form>
+		</div>
+	</div>
+	</div>
+
+<div class="modal fade issue-release-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content" style="text-align:center; margin: 0 auto; padding-top:30px;margin-left:30;">
+			<form class="form-horizontal" id="release-issue" role="form" action="" method="POST">
+				<div class="form-group">
+					<label for="inputIssueIDs" class="col-sm-2 control-label">Issue IDs</label>
+					<div class="col-md-5">
+						<input type="text" class="form-control" id="inputIssueIDs" placeholder="SFDC Issue ID" disabled>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="inputEmail" class="col-sm-2 control-label">Comments</label>
+					<div class="col-md-5">
+						<textarea cols="4" class="form-control" name="comments" id="rel_comments" ></textarea>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-primary release_final">Release</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+
+<div class="modal fade issue-reopen-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-md">
+		<div class="modal-content" style="text-align:center; margin: 0 auto; padding-top:30px;margin-left:30;">
+			<form class="form-horizontal" id="reopen-issue" role="form" action="" method="POST">
+				<div class="form-group">
+					<label for="inputIssueIDs" class="col-sm-2 control-label">Issue IDs</label>
+					<div class="col-md-5">
+						<input type="text" class="form-control" id="inputIssueIDs" placeholder="SFDC Issue ID" disabled>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="inputEmail" class="col-sm-2 control-label">Comments</label>
+					<div class="col-md-5">
+						<textarea cols="4" class="form-control" name="comments" id="reopen_comments" ></textarea>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-primary reopen">Re-Open</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="mdlDeleteIssue">
+<div class="modal-dialog">
+<div class="modal-content">
+<div class="modal-header">
+<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+<h4 class="modal-title">Are you sure?</h4>
+</div>
+<div class="modal-body">
+<p>Are you sure you want to delete these issue?</p>
+</div>
+<div class="modal-footer">
+<button type="button" id="btnDeleteIssue" class="btn btn-danger">Delete Issues</button>
+<button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+</div>
+</div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+</div>
+
+<div class="modal fade" id="release-QA-modal">
+<div class="modal-dialog">
+<div class="modal-content">
+<div class="modal-header"><b>Release to QA</b></div>
+<form class="form-horizontal" id="QA-form" role="form" action="/issues/assignIssueToDeveloper" method="POST">
+				<div class="form-group">
+					<label for="inputIssueIDs" class="col-sm-2 control-label">Issue IDs</label>
+					<div class="col-md-5">
+						<input type="text" class="form-control" id="inputIssueIDs" placeholder="SFDC Issue ID" disabled>
+					</div>
+				</div>
+				<input type="hidden" id="_csrf" name="_csrf" class="form-control" value="<%= locals._csrf %>">
+				<div class="form-group">
+				<div class="col-md-8">
+						<input type="text" name="environment" class="form-control" placeholder="Environment to test" style="margin-left:17%;margin-right:17%"/>
+						<textarea cols="4" class="form-control" placeholder="Write your test case here" name="testcase" id="testcase" style="margin-left:17%;margin-right:17%; margin-top:10px"></textarea>
+					</div>
+					<div class="col-md-8">
+						<textarea cols="4" class="form-control" placeholder="Leave your comments to QA here" name="comments" id="comments" style="margin-left:17%;margin-right:17%; margin-top:10px"></textarea>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+					<button type="button" class="btn btn-primary release" data-dismiss="modal">Release</button>
+				</div>
+			</form>
+</div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->
+</div>
+<% include ../scripts.ejs %>
+<script type="text/javascript">
+var fromDate=$('#fromdate').datetimepicker();
+var toDate=$('#todate').datetimepicker();
+$('#fromdate').datetimepicker();
+$('#todate').datetimepicker();
+$("#fromdate").on("dp.change",function (e) {
+    $('#todate').data("DateTimePicker").minDate(e.date);
+    console.log(e.date.format("DD/MM/YYYY,hh:mm:ss a"))
+});
+$("#todate").on("dp.change",function (e) {
+    $('#fromdate').data("DateTimePicker").maxDate(e.date);
+    console.log(e.date.format("DD/MM/YYYY,hh:mm:ss a"))
+});
+$('#btnDeleteIssue').on('click', function(ev) {
+		$('#mdlDeleteIssue').modal('hide');
+});
+$('tr.issueRow').on('click', function(ev) {
+	var uid = $(ev.target);
+	if (uid.is(':checkbox') || uid.find(':checkbox').length)
+		return;
+	uid = uid.parents(':has([data-uid])').attr('data-uid');
+	location.href = '/issues/' + uid;
+});
+
+$('span.btn-remove').on('click', function(ev) {
+	ev.preventDefault();
+	ev.stopPropagation();
+	var uid = $(ev.target).attr('data-uid');
+	$('div#mdlDeleteIssue button.btn.btn-danger').on('click', function(ev) {
+		ev.preventDefault();
+		ev.stopPropagation();
+		$.ajax({
+			url: '/issues/' + uid,
+			type: 'delete',
+			success: function(data) {
+				if (data && data.success)
+					location.reload(true);
+				else
+					alert('Error occurred');
+			}
+		})
+	});
+	$('#mdlDeleteIssue').modal();
+});
+
+$('tr.issue').on('click', function(ev) {
+	var uid = $(ev.target);
+	if (uid.is(':checkbox'))
+		return;
+	uid = uid.parents(':has([data-uid])').attr('data-uid');
+	location.href = '/issues/' + uid;
+});
+
+function getSelectedIssues(){
+	var checked = $('tbody input[type=checkbox]:checked');
+	var ids = [];
+	var extIds = [];
+	Array.prototype.forEach.call(checked, function(item){
+		ids.push(parseInt($(item).attr('data-uid')))
+		extIds.push($(item).attr('data-extId'));
+	});
+	return {ids: ids, extIds:extIds};
+};
+
+function showModalAlert(msg){
+	$('#alert-modal .modal-content .alert-danger').text(msg);
+	$('#alert-modal').modal('show');
+};
+
+function checkIssueSelected(issues){
+	if(issues.length)
+		return true;
+
+	showModalAlert('You must select atleast one issue.');
+	return false;
+};
+
+function getUsersByRole(role, callback){
+	$.ajax({
+		url: '/users/list/'+role,
+		success: function(data){
+			if(data && data.success)
+				callback(data.data);
+			else
+				console.log('Error while retreiving users.');
+		}
+	});
+};
+
+// Assign dev
+$('#assign-to').on('click', function(ev){
+	var selectedIssues = getSelectedIssues();
+
+	if(!checkIssueSelected(selectedIssues.ids))
+		return;
+
+	$('#assign-to-modal #inputIssueIDs').val(selectedIssues.extIds.join(', '));
+
+	getUsersByRole('Developer', function(users){
+		$('#assignee').html('');
+		$('<option class="assign-to">Choose Developer</option>').appendTo('#assignee');
+		for(var i=0;i<users.length;++i){
+			$('<option class="assign-to" value="'+users[i].id+'">'+users[i].name+'</option>').appendTo('#assignee');
+		};
+
+		$('#btnAssignTo').on('click', function(ev){
+			ev.preventDefault();
+			ev.stopPropagation();
+
+			var assignedUser = parseInt($('option.assign-to:selected').val());
+			if(isNaN(assignedUser))
+				return showModalAlert('You must select a user');
+
+			var comments = $('#assign-to-comments').val() || '';
+
+			$.ajax({
+				url: '/issues/flow/assignDev',
+				type: 'post',
+				data: {issues: selectedIssues.ids, currentOwner: assignedUser, comments: comments, _csrf: '<%= locals._csrf %>'},
+				success: function(data){
+					if(data && data.success)
+						location.reload(false);
+					else
+						showModalAlert(data.err);
+				}
+			});
+		});
+
+		$('#assign-to-modal').modal();
+	});
+});
+
+// Assign QA
+$('#assign-qa').on('click', function(ev){
+	var selectedIssues = getSelectedIssues();
+
+	if(!checkIssueSelected(selectedIssues.ids))
+		return;
+
+	$('#assign-qa-modal #inputIssueIDs').val(selectedIssues.extIds.join(', '));
+
+	getUsersByRole('QA', function(users){
+		$('#assignee-qa').html('');
+		$('<option class="assign-qa">Choose QA</option>').appendTo('#assignee-qa');
+		for(var i=0;i<users.length;++i){
+			$('<option class="assign-qa" value="'+users[i].id+'">'+users[i].name+'</option>').appendTo('#assignee-qa');
+		};
+
+		$('#btnAssignQA').on('click', function(ev){
+			ev.preventDefault();
+			ev.stopPropagation();
+
+			var assignedUser = parseInt($('option.assign-qa:selected').val());
+
+			var environment = $('#assign-qa-environment').val();
+			if(!environment)
+				return showModalAlert('You must enter an environment.');
+
+			var comments = $('#assign-qa-comments').val() || '';
+			comments = 'Please test in '+ environment+'.' + '\n'+comments;
+
+            var url = assignedUser ? '/issues/flow/assignQAIndividual' : '/issues/flow/assignQA';
+
+			$.ajax({
+				url: url,
+				type: 'post',
+				data: {issues: selectedIssues.ids, currentOwner: assignedUser, comments: comments, _csrf: '<%= locals._csrf %>'},
+				success: function(data){
+					if(data && data.success)
+						location.reload(false);
+					else
+						showModalAlert(data.err);
+				}
+			});
+		});
+
+		$('#assign-qa-modal').modal();
+	});
+});
+
+//Take issue
+$('#take-issue').on('click', function(ev){
+	ev.preventDefault();
+	ev.stopPropagation();
+	var selectedIssues = getSelectedIssues();
+
+	if(!checkIssueSelected(selectedIssues.ids))
+		return;
+
+	var role = '<%= user.role %>';
+	role = role == 'QA' ? role : 'Dev';
+
+	$.ajax({
+		url: '/issues/flow/takeIssue'+role,
+		type: 'post',
+		data: {issues: selectedIssues.ids, _csrf: '<%= locals._csrf %>'},
+		success: function(data){
+			if(data && data.success){
+				showModalAlert('The selected issues have been assigned to you.');
+				window.setTimeout(function(){location.reload(false)},600);
+			}
+			else
+				showModalAlert(data.err);
+		}
+	});
+});
+
+//release issue
+$('#release-issue').on('click', function(ev){
+	ev.preventDefault();
+	ev.stopPropagation();
+	var selectedIssues = getSelectedIssues();
+
+	if(!checkIssueSelected(selectedIssues.ids))
+		return;
+
+	$.ajax({
+		url: '/issues/flow/releaseIssue',
+		type: 'post',
+		data: {issues: selectedIssues.ids, _csrf: '<%= locals._csrf %>'},
+		success: function(data){
+			if(data && data.success){
+				showModalAlert('The selected issues have been released.');
+				window.setTimeout(function(){location.reload(false)},600);
+			}
+			else
+				showModalAlert(data.err);
+		}
+	});
+});
+
+//close issue
+$('#close-issue').on('click', function(ev){
+	ev.preventDefault();
+	ev.stopPropagation();
+	var selectedIssues = getSelectedIssues();
+
+	if(!checkIssueSelected(selectedIssues.ids))
+		return;
+
+	$.ajax({
+		url: '/issues/flow/closeIssue',
+		type: 'post',
+		data: {issues: selectedIssues.ids, _csrf: '<%= locals._csrf %>'},
+		success: function(data){
+			if(data && data.success){
+				showModalAlert('The selected issues have been closed.');
+				window.setTimeout(function(){location.reload(false)},600);
+			}
+			else
+				showModalAlert(data.err);
+		}
+	});
+});
+
+//reopen issue
+$('#reopen-issue').on('click', function(ev){
+	ev.preventDefault();
+	ev.stopPropagation();
+	var selectedIssues = getSelectedIssues();
+
+	if(!checkIssueSelected(selectedIssues.ids))
+		return;
+
+	$.ajax({
+		url: '/issues/flow/reopenIssue',
+		type: 'post',
+		data: {issues: selectedIssues.ids, _csrf: '<%= locals._csrf %>'},
+		success: function(data){
+			if(data && data.success){
+				showModalAlert('The selected issues have been reopened.');
+				window.setTimeout(function(){location.reload(false)},600);
+			}
+			else
+				showModalAlert(data.err);
+		}
+	});
+});
+
+$('#result-qa').on('click', function(ev){
+	var selectedIssues = getSelectedIssues();
+
+	if(!checkIssueSelected(selectedIssues.ids))
+		return;
+
+	$('#issue-result-qa-modal #inputIssueIDs').val(selectedIssues.extIds.join(', '));
+	$('#res_comment').val('');
+
+	$('#btnResultQA').on('click', function(ev){
+		ev.preventDefault();
+		ev.stopPropagation();
+
+		var result = $('option.result-qa:selected').val();
+		if(!result)
+			return showModalAlert('You must select a resolution.');
+
+		var comments = $('#result-qa-comments').val() || '';
+
+		var action = result == 'pass' ? 'passIssue' : 'failIssue';
+		$.ajax({
+			url: '/issues/flow/'+action,
+			type: 'post',
+			data: {issues: selectedIssues.ids, comments: comments, _csrf: '<%= locals._csrf %>'},
+			success: function(data){
+				if(data && data.success)
+					location.reload(false);
+				else
+					showModalAlert(data.err);
+			}
+		});
+	});
+
+	$('#issue-result-qa-modal').modal();
+});
+
+$('#issue-filter').on('click', function(ev){
+	if($(this).val() == 'my' && window.location.search.indexOf('mine')==-1)
+		window.location = '/issues?mine=true';
+	else
+		window.location = '/issues';
+});
+
+$('input#inpSelectAll').on('change',function(ev){
+    if($(ev.target).prop('checked'))
+        $('tbody input[type=checkbox]').prop('checked',true);
+    else
+        $('tbody input[type=checkbox]').prop('checked',false);
+});
+
+(function configureVSB(){
+	var tags = ['Queue','ID','Status','Assigned To'];
+	var elt = $('#inputVSB');
+
+	$('#inputVSB')
+})();
+
+$(document).ready(function(){
+	if(window.location.search.indexOf('mine')>-1)
+		$('#issue-filter option[value=my]').attr('selected',true);
+});
+
+</script>
+<% include ../footer.ejs %>

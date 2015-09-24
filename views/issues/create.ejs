@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel='stylesheet' href='/css/bootstrap.css' />
+	<link rel='stylesheet' href='/css/style.css' />
+
+</head>
+<body>
+
+	<div class="modal fade" id="mdlComments">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+					<h4 class="modal-title">Enter Comments</h4>
+				</div>
+				<div class="modal-body">
+
+					<input type="text" id="commentsinput" name="commentsinput" class="form-control">
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-queuesave" id="btn-queuesave">Save Comments</button>
+					<button type="button" class="btn btn-queuecancel" data-dismiss="modal">Cancel</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<nav class="navbar navbar-inverse navbar-ixed-top" role="navigation">
+		<div class="container-fluid">
+			<!-- Brand and toggle get grouped for better mobile display -->
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="#"><img src="/img/logo.png">Compass</a>
+			</div>
+
+			<!-- Collect the nav links, forms, and other content for toggling -->
+			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+				<ul class="nav navbar-nav">
+					<li class="active"><a href="/issues">Issues</a></li>
+					<li ><a href="/users">Users</a></li>
+					<li><a href="/roles">Roles</a></li>
+					<li><a href="/projects">Projects</a></li>
+					<li><a href="/queues">Queues</a></li>
+					<li><a href="#">Knowledge Base</a></li>
+				</ul>
+
+				<ul class="nav navbar-nav navbar-right">
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown"><%= user.name %> <span class="caret"></span></a>
+						<ul class="dropdown-menu" role="menu">
+							<li class="active"><a href="#">Profile</a></li>
+							<li><a href="/user/account.idhtml">Account</a></li>
+							<li class="divider"></li>
+							<li><a href="#">Logout</a></li>
+						</ul>
+					</li>
+				</ul>
+			</div><!-- /.navbar-collapse -->
+		</div><!-- /.container-fluid -->
+	</nav>
+	<div id="issue-profile" style="margin-top:0px;">
+		<div class="container">
+			<div style="padding-top:20px;"></div>
+			<div class="row">
+				<% if(locals.err){ %>
+				<div class="alert alert-danger" role="alert"><%= err %></div>
+				<% } %>
+				<% if(!locals.errOnly){ %>
+
+				<form class="form-horizontal" role="form" action="/issues/<% var profileID = (locals.profile && profile.id) || '' %><%= profileID %>" method="POST">
+					<div class="col-md-6">
+						<div class="form-group">
+							<label for="externalId" class="col-sm-2 control-label">Issue ID</label>
+							<div class="col-sm-10">
+								<input type="text" name="externalId" class="form-control" id="externalId" placeholder="" <% if(locals.profile && profile.external_id){ %> value="<%= profile.external_id %>" <% } %>>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="externalUrl" class="col-sm-2 control-label">External Url</label>
+							<div class="col-sm-10">
+								<input type="tel" name="externalUrl" class="form-control" id="externalUrl" placeholder="" <% if(locals.profile && profile.external_url){ %> value="<%= profile.external_url %>" <% } %>>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="externalcategory" class="col-sm-2 control-label">External Category</label>
+							<div class="col-sm-10">
+								<input type="tel" name="externalcategory" class="form-control" id="externalcategory" placeholder="" <% if(locals.profile && profile.external_category){ %> value="<%= profile.external_category %>" <% } %>>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="externalseverity" class="col-sm-2 control-label">External Severity</label>
+							<div class="col-sm-10">
+								<input type="tel" name="externalseverity" class="form-control" id="externalseverity" placeholder="" <% if(locals.profile && profile.external_severity){ %> value="<%= profile.external_severity %>" <% } %>>
+							</div>
+						</div>
+		  <!--      <div class="form-group">
+						<label for="inputPhone" class="col-sm-2 control-label">Project</label>
+						<div class="col-sm-10">
+						 <select  id="project" name="project" class="form-control">
+							 <option value="0"  class="pull-center">Select Project</option>
+									<% for(var i=0;i<projects.length;++i){ %>
+										<option value="<%= projects[i].id %>" <% if(locals.profile && profile.project && projects[i].id==profile.project){ %> selected <% } %>><%= projects[i].name %></option>
+									<% } %>
+								</select>
+						</div>
+					</div>
+				-->          <div class="form-group">
+				<label for="inputPhone" class="col-sm-2 control-label">Tenant</label>
+				<div class="col-sm-10">
+					<input type="tel" name="tenant" class="form-control" id="tenant" <% if(locals.profile && profile.tenant){ %> value="<%= profile.tenant %>" <% } %>>
+
+				</div>
+			</div>
+			<% if (locals.activity && activity.length > 0) { %>
+			<label align="center">Issue Activity </label>
+			<div class="table-responsive">
+				<table class="table table-hover table-striped table-bordered tablesorter" id="myTable">
+					<thead>
+						<tr>
+							<th>Comments</th>
+							<th>Created_By</th>
+							<th>Created_On</th>
+							<th>Modified_On</th>
+							<th>Modified_By</th>
+						</tr>
+					</thead>
+					<tbody>
+
+						<% for (var i=0;i<activity.length;++i) { %>
+						<tr>
+							<td><%= activity[i].comments %></td>
+							<td><%= activity[i].created_by %></td>
+							<td><%= activity[i].created_on%></td>
+							<td><%= activity[i].modified_on%></td>
+							<td><%= activity[i].modified_by%></td>
+						</tr>
+
+						<% } %>
+
+					</tbody>
+
+				</table>
+				<a class= issueActivity>MORE</a>
+			</div>
+			<% } %>
+		<!--             <div class="form-group">
+						<label for="inputPhone" class="col-sm-2 control-label">Status</label>
+						<div class="col-sm-10">
+						 <input type="text"  name="issuestatus" class="form-control" id="issuestatus" disabled <% if(locals.profile && profile.status){ %> value="<%= profile.status %>" <% } else { %> value="New" <% } %>>
+
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputPhone" class="col-sm-2 control-label">Queue</label>
+						<div class="col-sm-10">
+							<select class="form-control" id="queue" name="queue" >
+									<option value="0" class="pull-center">Select Queue</option>
+									   <% for(var i=0;i<queues.length;++i){ %>
+										<option value="<%= queues[i].id %>" <% if(locals.profile && profile.queue && queues[i].id==profile.queue){ %> selected <% } %>><%= queues[i].name %></option>
+									<% } %>
+								</select>
+						</div>
+						<input type="hidden" name="queueoldvalue" id="queueoldvalue" <% if(locals.profile && profile.queue){ %> value="<%= profile.queue%>" <% } %>>
+						 <input type="hidden"name="queuecommenttext" id="queuecommenttext">
+					</div>
+
+				-->
+
+			</div> <div class="col-md-6">
+
+			<div class="form-group">
+				<label for="inputPhone" class="col-sm-2 control-label"  onload=alert("profile.severity");>Severity</label>
+				<div class="col-sm-10">
+					<input type="text" name="severity" class="form-control" id="severity"  <% if(locals.profile && profile.severity){ %> value="<%= profile.severity %>" <% } %>>
+
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="inputPhone" class="col-sm-2 control-label">Subject</label>
+				<div class="col-sm-10">
+					<input type="text" name="subject" class="form-control" id="subject" <% if(locals.profile && profile.subject){ %> value="<%= profile.subject %>" <% } %>>
+
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="inputPhone" class="col-sm-2 control-label">Description</label>
+				<div class="col-sm-10">
+					<textarea name="description" class="form-control" rows="6" id="description" ><% if(locals.profile && profile.description){ %> <%= profile.description %> <% } %>
+					</textarea>
+				</div>
+			</div>
+			<% if(locals.profile){ %>
+			<div class="form-group" >
+				<label for="inputPhone" class="col-sm-2 control-label">Created By</label>
+				<div class="col-sm-10">
+					<input type="text" name="createdby" class="form-control" id="createdby" disabled <% if(locals.profile && profile.created_by){ %> value="<%= profile.created_by %>" <% } %> >
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="inputPhone" class="col-sm-2 control-label">Created On</label>
+				<div class="col-sm-10">
+					<input type="text" name="createdon" class="form-control" id="createdon" disabled<% if(locals.profile && profile.created_on){ %> value="<%= profile.created_on %>" <% } %> >
+
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="inputPhone" class="col-sm-2 control-label">Modified By</label>
+				<div class="col-sm-10">
+					<input type="text" name="modifiedby" class="form-control" id="modifiedby" disabled <% if(locals.profile && profile.modified_by){ %> value="<%= profile.modified_by %>" <% } %>>
+
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="inputPhone" class="col-sm-2 control-label">Modified On</label>
+				<div class="col-sm-10">
+					<input type="text" name="modifiedon" class="form-control" id="modifiedon" disabled <% if(locals.profile && profile.modified_on &&  profile.modified_on!='Invalid Date'){ %> value="<%= profile.modified_on %>" <% } %>>
+
+				</div>
+			</div>
+
+			<% } %>
+
+		</div>
+
+
+		<div class="form-group">
+			<div class="col-sm-offset-6 col-sm-10">
+				<input type="hidden" name="_csrf" class="form-control" value="<%= locals._csrf %>">
+				<button type="submit" class="btn btn-primary">Save</button>
+			</div>
+		</div>
+
+
+	</form>
+	<% } %>
+</div>
+</div>
+</div>
+<footer>
+	<p>&copy; PositiveEdge Technology 2014</p>
+</footer>
+<script src="/js/jquery-2.1.1.js"></script>
+<script src="/js/bootstrap.js"></script>
+<script src="/js/jquery.tablesorter.min.js"></script>
+<script type="text/javascript">
+	$('#queue').on('change', function(ev) {
+		String.prototype.endsWith = function( str ) {
+			return this.substring( this.length - str.length, this.length ) === str;
+		}
+		var str = document.URL;
+		if(! str.endsWith("new") ){
+			$('#commentsinput').val("");
+			$('#btn-queuesave').on('click', function(ev) {
+				var value=$('#commentsinput').val();
+				$('#queuecommenttext').val(value);
+				$('#mdlComments').modal('hide');
+			});
+			$('#mdlComments').modal();
+		}
+	});
+	$('a.issueActivity').on('click',function(ev){
+		$.ajax({
+			url: '/issues/<%= (locals.profile && profile.id) || 'new'%>/getfullActivity',
+			type: 'GET',
+			success: function(data) {
+				if (data) {
+
+					$('#myTable').html('<thead><tr><th>Comments</th><th>Created_By</th><th>Created_On</th><th>Modified_On</th><th>Modified_By</th></tr></thead><tbody></tbody>');
+					data.forEach(function(issues) {
+						$('<tr><td>'+issues.comments+'</td><td>'+issues.created_by+'</td><td>'+issues.created_on+'</td><td>'+issues.modified_on+'</td><td>'+issues.modified_by+'</td></tr>').appendTo('#myTable tbody');
+					});
+					$("#myTable").tablesorter();
+				}
+			}
+		});
+		$('a.issueActivity').hide();
+	});
+
+	$(document).ready(function(){
+		$("#myTable").tablesorter();
+		(function formatDates(){
+			var createdon = $('#createdon').val();
+			var modifiedon = $('#modifiedon').val();
+			function formatDate(date){
+				date = new Date(date);
+				var dateString = '';
+				var m = '' + (date.getMonth()+1);
+				var d = '' + (date.getDate());
+				var y = date.getFullYear();
+
+				m = m.length < 2 ? '0'+m : m;
+				d = d.length < 2 ? '0'+d : d;
+				dateString += m+'/'+d+'/'+y;
+
+				m = '' + (date.getMinutes());
+				var s = '' + (date.getSeconds());
+				var h = '' + (date.getHours());
+
+				m = m.length < 2 ? '0'+m : m;
+				h = h.length < 2 ? '0'+h : h;
+				s = s.length < 2 ? '0'+s : s;
+				dateString += ' '+h+':'+m+':'+s;
+
+				return dateString;
+			};
+			$('#createdon').val(formatDate(createdon));
+			$('#modifiedon').val(formatDate(modifiedon));
+		})();
+
+
+	});
+</script>
+
+</body>
+</html>

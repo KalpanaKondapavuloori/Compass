@@ -1,0 +1,239 @@
+CREATE TABLE roles (
+    id TINYINT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(30) NOT NULL,
+    created_on DATETIME NOT NULL,
+    created_by VARCHAR(30) NOT NULL,
+    modified_on DATETIME NULL,
+    modified_by VARCHAR(30) NULL,
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE projects (
+    id SMALLINT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(200) NOT NULL,
+    description VARCHAR(200),
+    created_on DATETIME NOT NULL,
+    created_by VARCHAR(30) NOT NULL,
+    modified_on DATETIME,
+    modified_by VARCHAR(30),
+    PRIMARY KEY (id)
+);
+
+CREATE TABLE users (
+    id SMALLINT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(200) NOT NULL,
+    email VARCHAR(250) NOT NULL,
+    password VARCHAR(65) NOT NULL,
+    img_url VARCHAR(250),
+    role TINYINT NOT NULL,
+    project SMALLINT NOT NULL,
+    active BOOLEAN NOT NULL DEFAULT 1,
+    phone VARCHAR(25),
+    about text,
+    created_on DATETIME NOT NULL,
+    created_by VARCHAR(30) NOT NULL,
+    modified_on DATETIME,
+    modified_by VARCHAR(30),
+    PRIMARY KEY (id),
+    INDEX users_role (role),
+    FOREIGN KEY (role) REFERENCES roles(id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+    INDEX users_project_id (project),
+    FOREIGN KEY (project) REFERENCES projects(id) ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+
+CREATE TABLE queues (
+    id TINYINT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(50) NOT NULL,
+    project SMALLINT NOT NULL,
+    created_on DATETIME NOT NULL,
+    created_by VARCHAR(30) NOT NULL,
+    modified_on DATETIME NOT NULL,
+    modified_by VARCHAR(30) NOT NULL,
+    PRIMARY KEY (id),
+    INDEX issue_queues_project (project),
+    FOREIGN KEY (project) REFERENCES projects(id) ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+
+
+CREATE TABLE issue_queues (
+    id TINYINT NOT NULL AUTO_INCREMENT,
+    from_queue TINYINT NOT NULL,
+    to_queue TINYINT NOT NULL,
+    comments TEXT,
+    created_on DATETIME NOT NULL,
+    created_by VARCHAR(30) NOT NULL,
+    modified_on DATETIME NOT NULL,
+    modified_by VARCHAR(30) NOT NULL,
+    PRIMARY KEY (id),
+    INDEX queues_from (from_queue),
+    FOREIGN KEY (from_queue) REFERENCES queues(id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+    INDEX queues_to (to_queue),
+    FOREIGN KEY (to_queue) REFERENCES queues(id) ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+
+CREATE TABLE issues (
+    id INT NOT NULL AUTO_INCREMENT,
+    external_id VARCHAR(30),
+    external_url VARCHAR(2083),
+    external_category VARCHAR(30),
+    external_severity VARCHAR(5),
+    subject VARCHAR(500) NOT NULL,
+    description TEXT NOT NULL,
+    tenant VARCHAR(50) NOT NULL,
+    project SMALLINT NOT NULL,
+    severity VARCHAR(5),
+    status VARCHAR(30) NOT NULL,
+    created_on DATETIME NOT NULL,
+    created_by VARCHAR(30) NOT NULL,
+    modified_on DATETIME NOT NULL,
+    modified_by VARCHAR(30) NOT NULL,
+    queue TINYINT NOT NULL,
+    PRIMARY KEY (id),
+    INDEX issues_project (project),
+    FOREIGN KEY (project) REFERENCES projects(id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+    INDEX issues_queue (queue),
+    FOREIGN KEY (queue) REFERENCES queues(id) ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+
+
+
+
+CREATE TABLE issue_test_case (
+    id INT NOT NULL AUTO_INCREMENT,
+    issue INT NOT NULL,
+    environment VARCHAR(30),
+    steps TEXT NOT NULL,
+    comments TEXT,
+    created_on DATETIME NOT NULL,
+    created_by VARCHAR(30) NOT NULL,
+    modified_on DATETIME NOT NULL,
+    modified_by VARCHAR(30) NOT NULL,
+    PRIMARY KEY (id),
+    INDEX issue_test_case_issue (issue),
+    FOREIGN KEY (issue) REFERENCES issues(id) ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+
+
+CREATE TABLE `issue_activity` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `issue` int(11) NOT NULL,
+  `comments` text,
+  `assigned_by` tinyint(4) DEFAULT NULL,
+  `assigned_to` tinyint(4) DEFAULT NULL,
+  `isCurrent` tinyint(1) NOT NULL,
+  `created_on` datetime NOT NULL,
+  `created_by` varchar(30) NOT NULL,
+  `modified_on` datetime NOT NULL,
+  `modified_by` varchar(30) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `issue_activity_issue` (`issue`),
+  CONSTRAINT `issue_activity_ibfk_1` FOREIGN KEY (`issue`) REFERENCES `issues` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+);
+
+CREATE TABLE password_reset (
+id SMALLINT NOT NULL AUTO_INCREMENT,
+code VARCHAR(40) NOT NULL,
+user SMALLINT NOT NULL,
+PRIMARY KEY (id),
+INDEX password_reset_user (user),
+FOREIGN KEY (user) REFERENCES users(id) ON UPDATE NO ACTION ON DELETE NO ACTION,
+INDEX password_reset_code (code),
+created_on DATETIME NOT NULL,
+    created_by VARCHAR(30) NOT NULL,
+    modified_on DATETIME NOT NULL,
+    modified_by VARCHAR(30) NOT NULL
+);
+
+ALTER TABLE roles ADD COLUMN (permissions BLOB);
+ALTER TABLE projects ADD COLUMN (flow_config BLOB);
+
+INSERT INTO `compassdb`.`roles` VALUES (1,'Manager','2014-09-16 00:00:00','Anusha','2014-09-29 17:56:01','adminconfig','{\"users\":{\"create\":true,\"read\":true,\"update\":true,\"del\":true,\"global\":true},\"roles\":{\"create\":true,\"read\":true,\"update\":true,\"del\":true},\"projects\":{\"create\":true,\"read\":true,\"update\":true,\"del\":true},\"queues\":{\"create\":true,\"read\":true,\"update\":true,\"del\":true}}'),(2,'Lead','2014-09-16 00:00:00','Anusha','2015-01-30 16:14:44','Admin Config','{\"users\":{\"create\":true,\"read\":true,\"update\":true,\"del\":true,\"global\":true},\"queues\":{\"create\":true,\"read\":true,\"update\":true,\"del\":true},\"issues\":{\"create\":true,\"read\":true,\"assignDev\":true,\"delete\":true,\"take\":true,\"resolve\":true,\"assignQA\":true,\"update\":true,\"release\":true,\"close\":true,\"reopen\":true}}'),(3,'Developer','2014-09-16 00:00:00','Anusha','2015-01-09 13:24:20','Admin Config','{\"users\":{\"create\":false,\"read\":true,\"update\":{\"default\":true,\"project\":false,\"role\":false},\"del\":false},\"issues\":{\"assignQA\":true,\"read\":true,\"take\":true,\"update\":true}}'),(4,'QA','2014-09-16 00:00:00','Anusha','2015-01-09 13:21:45','Admin Config','{\"users\":{\"create\":false,\"read\":true,\"update\":{\"default\":true,\"project\":false,\"role\":false},\"del\":false},\"issues\":{\"take\":true,\"resolve\":true,\"read\":true}}');
+INSERT INTO `compassdb`.`projects` VALUES (1,'ROD Config','Renew On Demand Tenant Configuration','2015-09-16 00:00:00','Anusha','2015-01-30 16:41:20','1','{\"users\":{\"defaults\":{\"role\":\"Developer\"}},\"issues\":{\"list\":{\"queue\":{\"QA\":\"QA\",\"Developer\":\"Dev\",\"*\":\"*\"},\"owner\":{\"Developer\":\"@user\",\"*\":\"*\"}},\"fields\":{\"available\":{\"status\":[\"New\",\"Open\",\"QA - Pending\",\"QA - Failed\",\"QA - Passed\",\"Released\",\"Closed\",\"Reopened\"]},\"defaults\":{\"status\":\"New\",\"queue\":\"Need To Work\"}},\"flows\":{\"assignDev\":{\"transitions\":{\"status\":{\"New\":\"Open\",\"*\":\"Reopened\"},\"queue\":{\"*\":\"Dev\"},\"current_owner\":{\"*\":\"$currentOwner\"}},\"conditions\":{\"status\":[\"!QA - Pending\",\"!QA - Passed\"]},\"sideEffects\":{\"activity\":{\"assignedTo\":\"$currentOwner\"},\"notify\":[{\"to\":\"@assignee\",\"template\":{\"key\":\"issueAssigned\",\"values\":{\"issue\":{\"id\":\"#id\",\"summary\":\"#subject\",\"tenant\":\"#tenant\",\"comments\":\"$comments\",\"externalID\":\"#external_id\",\"externalURL\":\"#external_url\"}}}}]}},\"assignQA\":{\"transitions\":{\"status\":{\"*\":\"QA - Pending\"},\"queue\":{\"*\":\"QA\"},\"current_owner\":{\"*\":\"$currentOwner\"}},\"conditions\":{\"status\":[\"Open\",\"Reopened\",\"New\",\"QA - Failed\"]},\"sideEffects\":{\"activity\":{\"assignedTo\":\"$currentOwner\"},\"notify\":[{\"to\":\"@assignee\",\"template\":{\"key\":\"issueAssigned\",\"values\":{\"issue\":{\"id\":\"#id\",\"summary\":\"#subject\",\"tenant\":\"#tenant\",\"comments\":\"$comments\",\"externalID\":\"#external_id\",\"externalURL\":\"#external_url\"}}}}]}},\"takeIssueQA\":{\"transitions\":{\"current_owner\":{\"*\":\"@user\"}},\"conditions\":{\"status\":[\"QA - Pending\"]},\"sideEffects\":{\"activity\":{\"assignedTo\":\"@user\"}}},\"takeIssueDev\":{\"transitions\":{\"status\":{\"Reopened\":\"Reopened\",\"*\":\"Open\"},\"current_owner\":{\"*\":\"@user\"}},\"conditions\":{\"status\":[\"!QA - Pending\",\"!QA - Passed\",\"!Released\",\"!Closed\"]},\"sideEffects\":{\"activity\":{\"assignedTo\":\"@user\"}}},\"releaseIssue\":{\"transitions\":{\"status\":{\"*\":\"Released\"},\"queue\":{\"*\":\"Released\"}},\"conditions\":{\"status\":[\"QA - Passed\"]}},\"closeIssue\":{\"transitions\":{\"status\":{\"*\":\"Closed\"},\"queue\":{\"*\":\"Released\"}},\"conditions\":{\"status\":[\"Released\"]}},\"reopenIssue\":{\"transitions\":{\"status\":{\"*\":\"Reopened\"},\"queue\":{\"*\":\"Need To Work\"}},\"conditions\":{\"status\":[\"QA - Passed\",\"QA - Failed\",\"Closed\",\"Released\"]}},\"passIssue\":{\"transitions\":{\"status\":{\"*\":\"QA - Passed\"},\"queue\":{\"*\":\"Pending Release\"}},\"conditions\":{\"status\":[\"QA - Pending\"]},\"sideEffects\":{\"notify\":[{\"to\":\"@previousOwner\",\"template\":{\"key\":\"issuePassed\",\"values\":{\"issue\":{\"id\":\"#id\",\"summary\":\"#subject\",\"tenant\":\"#tenant\",\"comments\":\"$comments\",\"externalID\":\"#external_id\",\"externalURL\":\"#external_url\"}}}}]}},\"failIssue\":{\"transitions\":{\"status\":{\"*\":\"QA - Failed\"},\"queue\":{\"*\":\"Dev\"}},\"conditions\":{\"status\":[\"QA - Pending\"]},\"sideEffects\":{\"activity\":{\"assignedTo\":\"@previousOwner\"},\"notify\":[{\"to\":\"@previousOwner\",\"template\":{\"key\":\"issueFailed\",\"values\":{\"issue\":{\"id\":\"#id\",\"summary\":\"#subject\",\"tenant\":\"#tenant\",\"comments\":\"$comments\",\"externalID\":\"#external_id\",\"externalURL\":\"#external_url\"}}}}]}}}}}');
+INSERT INTO `compassdb`.`users` (`name`, `email`, `password`, `role`, `project`, `active`, `created_on`, `created_by`) VALUES ('adminconfig', 'petrodconfig@gmail.com', '$2a$10$V1zESqqu4V4MIM6l8nT.gOFEym5Ju3G73w91CxsazYqP25ehW/m2y', '1', '1', '1', '2014-09-16', 'Anusha');
+
+
+CREATE TABLE collection_meta (
+    id TINYINT NOT NULL AUTO_INCREMENT,
+    count INTEGER NOT NULL,
+    collection VARCHAR(20) NOT NULL,
+    PRIMARY KEY (id),
+    INDEX collection_meta_collection (collection)
+);
+
+INSERT INTO collection_meta (count, collection) VALUES (
+    (SELECT COUNT(*) FROM users WHERE active = 1),
+    "users"
+);
+INSERT INTO collection_meta (count, collection) VALUES (
+    (SELECT COUNT(*) FROM roles),
+    "roles"
+);
+INSERT INTO collection_meta (count, collection) VALUES (
+    (SELECT COUNT(*) FROM projects),
+    "projects"
+);
+INSERT INTO collection_meta (count, collection) VALUES (
+    (SELECT COUNT(*) FROM issues),
+    "issues"
+);
+INSERT INTO collection_meta (count, collection) VALUES (
+    (SELECT COUNT(*) FROM queues),
+    "queues"
+);
+
+
+CREATE TRIGGER collection_meta_insert_users AFTER INSERT ON users
+FOR EACH ROW UPDATE collection_meta SET count = count + 1 WHERE collection = "users";
+
+CREATE TRIGGER collection_meta_delete_users AFTER DELETE ON users
+FOR EACH ROW UPDATE collection_meta SET count = count - 1 WHERE collection = "users";
+
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`compassapi`@`localhost`*/ /*!50003 TRIGGER collection_meta_update_users AFTER UPDATE ON users FOR EACH ROW BEGIN
+IF (OLD.active <> NEW.active) THEN
+UPDATE collection_meta SET count = count + IF(NEW.active = 1, 1, -1) WHERE collection = "users";
+END IF;
+END */;;
+DELIMITER ;
+
+CREATE TRIGGER collection_meta_insert_roles AFTER INSERT ON roles
+FOR EACH ROW UPDATE collection_meta SET count = count + 1 WHERE collection = "roles";
+
+CREATE TRIGGER collection_meta_delete_roles AFTER DELETE ON roles
+FOR EACH ROW UPDATE collection_meta SET count = count - 1 WHERE collection = "roles";
+
+CREATE TRIGGER collection_meta_insert_projects AFTER INSERT ON projects
+FOR EACH ROW UPDATE collection_meta SET count = count + 1 WHERE collection = "projects";
+
+CREATE TRIGGER collection_meta_delete_projects AFTER DELETE ON projects
+FOR EACH ROW UPDATE collection_meta SET count = count - 1 WHERE collection = "projects";
+
+CREATE TRIGGER collection_meta_insert_queues AFTER INSERT ON queues
+FOR EACH ROW UPDATE collection_meta SET count = count + 1 WHERE collection = "queues";
+
+CREATE TRIGGER collection_meta_delete_queues AFTER DELETE ON queues
+FOR EACH ROW UPDATE collection_meta SET count = count - 1 WHERE collection = "queues";
+
+ALTER TABLE issues ADD current_owner text;
+
+
+CREATE TRIGGER collection_meta_insert_issues AFTER INSERT ON issues
+FOR EACH ROW UPDATE collection_meta SET count = count + 1 WHERE collection = "issues";
+
+CREATE TRIGGER collection_meta_delete_issues AFTER DELETE ON issues
+FOR EACH ROW UPDATE collection_meta SET count = count - 1 WHERE collection = "issues";
+
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`compassapi`@`localhost`*/ /*!50003 TRIGGER collection_meta_update_issues AFTER UPDATE ON issues FOR EACH ROW BEGIN
+IF (OLD.status <> NEW.status) THEN
+UPDATE collection_meta SET count = count + IF(NEW.status = "Deleted", -1, 1) WHERE collection = "issues";
+END IF;
+END */;;
+DELIMITER ;
+
+UPDATE collection_meta SET count = (SELECT count(*) FROM issues WHERE issues.status <> "Deleted") WHERE collection = "issues";
+
+ALTER TABLE users ADD CONSTRAINT user_unique_email UNIQUE (email);
+
+DROP TRIGGER collection_meta_update_users;
+UPDATE collection_meta SET count = (SELECT count(*) FROM users) WHERE collection = 'users';

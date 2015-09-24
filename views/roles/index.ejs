@@ -1,0 +1,95 @@
+<% include ../header.ejs %>
+<div id="role">
+    <!-- Example row of columns -->
+    <div class="container">
+        <h3>Roles</h3>
+        <div class='gridButtonContainer'>
+            <% if(permissions.create){ %>
+                <a class="btn btn-success btn-small" href="/roles/new">Add New role</a>
+            <% } %>
+        </div>
+        <% include ../pager.ejs %>
+               <table class="table table-hover table-striped table-bordered">
+            <thead>
+                <tr>
+                    <th><input type="checkbox" name="selected" id="inpSelectAll"></th>
+                    <th>Role</th>
+                    <% if(permissions.del){ %>
+                        <th><span class="icon-remove2"></th>
+                    <% } %>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (roles && roles.length > 0) { %>
+                <% for (var i=0;i<roles.length;++i) { %>
+                    <tr class="role" data-uid="<%= roles[i].id %>">
+                        <td><input type="checkbox" name="selected" value=""></td>
+                        <td><%= roles[i].name %></td>
+                        <% if(permissions.del){ %>
+                            <td><span class="icon-remove2 btn-remove" data-uid="<%= roles[i].id %>"></td>
+                        <% } %>
+                    </tr>
+                <% } %>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- Modal markup -->
+<div class="modal fade" id="mdlDeleteRole">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title">Are you sure?</h4>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete this role?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger">Delete role</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Don't Delete</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<% include ../scripts.ejs %>
+<script type="text/javascript">
+    $('tr.role').on('click', function(ev){
+        var uid = $(this);
+        if($(ev.target).is(':checkbox'))
+            return;
+        uid = uid.attr('data-uid');
+        location.href = '/roles/'+uid+window.location.search;
+    });
+
+    $('input#inpSelectAll').on('change',function(ev){
+        if($(ev.target).prop('checked'))
+            $('tbody input[type=checkbox]').prop('checked',true);
+        else
+            $('tbody input[type=checkbox]').prop('checked',false);
+    });
+
+    $('span.btn-remove').on('click',function(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
+        var uid = $(ev.target).attr('data-uid');
+        $('div#mdlDeleteRole button.btn.btn-danger').on('click', function(ev){
+            ev.preventDefault();
+            ev.stopPropagation();
+            $.ajax({
+                url: '/roles/'+uid,
+                type: 'DELETE',
+                success: function(data){
+                    if(data && data.success)
+                        location.reload(false);
+                    else
+                        alert('Error occurred');
+                }
+            })
+    });  $('#mdlDeleteRole').modal();
+    });
+</script>
+<% include ../footer.ejs %>
+
+

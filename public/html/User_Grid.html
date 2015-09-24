@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Compass - User Summary</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel='stylesheet' href='/css/style.css' />
+    <link rel='stylesheet' href='/css/bootstrap.css' />
+    <link rel='stylesheet' href='/css/bootstrap-theme.css' />
+    <SCRIPT language="javascript">
+           var typespeed = 600;
+           var MessagePause = 1000;
+           var message = new Array();
+           var currMessage = 0;
+           var offset = 0;
+           message[0] = "Compass - User Summary";
+           message[1] = "Compass - User Summary";
+           function Display() {
+               var text = message[currMessage];
+               if (offset < text.length) {
+                   if (text.charAt(offset) == " ")
+                       offset++;
+                   var partMessage = text.substring(0, offset + 1);
+                   document.title = partMessage;
+                   offset++;
+                   setTimeout("Display()", typespeed);
+               } else {
+                   offset = 0;
+                   currMessage++;
+                   if (currMessage == message.length)
+                       currMessage = 0;
+                   setTimeout("Display()", MessagePause);
+               }
+           }
+           Display(); 
+    </SCRIPT>
+  </head>
+
+  <body class="usergrid">
+    <div>
+
+
+
+  </body>
+
+</html>

@@ -1,0 +1,190 @@
+-- Table: " ProjectMaster "
+CREATE TABLE ProjectMaster
+(
+  ID integer NOT NULL,
+  ProjectName text NOT NULL,
+  CreatedBy text NOT NULL,
+  CreatedOn datetime NOT NULL,
+  ModifiedBy text,
+  ModifiedOn datetime,
+  CONSTRAINT ProjectMaster_pkey PRIMARY KEY (ID )
+);
+
+-- Table: " RoleMaster "
+CREATE TABLE RoleMaster
+(
+  ID integer NOT NULL,
+  RoleName text NOT NULL,
+  CreatedBy text NOT NULL,
+  CreatedOn datetime NOT NULL,
+  ModifiedBy text,
+  ModifiedOn datetime,
+  CONSTRAINT UserRoles_pkey PRIMARY KEY (ID )
+);
+
+
+-- Table: "UserDetails"
+CREATE TABLE UserDetails
+(
+ID integer NOT NULL,
+Email text NOT NULL,
+Password text NOT NULL,
+RoleId integer,
+ProjectId integer NOT NULL,
+FirstName text NOT NULL,
+LastName text,
+CreatedBy text NOT NULL,
+CreatedOn datetime NOT NULL,
+IsActive Boolean NOT NULL,
+ModifiedBy text,
+ModifiedOn datetime,
+CONSTRAINT UserDetails_pkey PRIMARY KEY (ID),
+CONSTRAINT RoleID FOREIGN KEY (ID)
+      REFERENCES RoleMaster (ID) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+
+-- Table: "TenantMaster "
+CREATE TABLE TenantMaster
+(
+  ID integer NOT NULL,
+  TenantName text NOT NULL ,
+  ProjectID integer NOT NULL,
+  CreatedBy text NOT NULL,
+  CreatedOn datetime NOT NULL,
+  ModifiedBy text,
+  ModifiedOn datetime,
+  CONSTRAINT TenantMaster PRIMARY KEY (ID ),
+  CONSTRAINT ProjectID FOREIGN KEY (ProjectID)
+      REFERENCES ProjectMaster (ID) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+
+-- Table: "CategoryMaster "
+CREATE TABLE CategoryMaster
+(
+  ID integer NOT NULL,
+  CategoryName text NOT NULL ,
+  ProjectID integer NOT NULL,
+  CreatedBy text NOT NULL,
+  CreatedOn datetime NOT NULL,
+  ModifiedBy text,
+  ModifiedOn datetime,
+  CONSTRAINT CategoryMaster PRIMARY KEY (ID ),
+  CONSTRAINT Project_ID FOREIGN KEY (ProjectID)
+      REFERENCES ProjectMaster (ID) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+
+-- Table: " IssueStatusMaster "
+CREATE TABLE IssueStatusMaster
+(
+  ID integer NOT NULL,
+  IssueStatus text NOT NULL ,
+  CreatedBy text NOT NULL,
+  CreatedOn datetime NOT NULL,
+  ModifiedBy text,
+  ModifiedOn datetime,
+CONSTRAINT IssueStatusMaster PRIMARY KEY (ID )
+);
+
+-- Table: “IssueDetails"
+CREATE TABLE IssueDetails
+(
+  ID integer NOT NULL,
+ External_Id integer,
+  Summary text NOT NULL,
+  StatusID integer NOT NULL,
+  CategoryId integer NOT NULL,
+  CreatedBy text NOT NULL,
+  TenantId integer NOT NULL,
+  CreatedOn datetime NOT NULL,
+  Priority text NOT NULL,
+  ModifiedBy text,
+  ModifiedOn datetime,
+  CONSTRAINT IssueDetails_pkey PRIMARY KEY (ID ),
+  CONSTRAINT CategoryId FOREIGN KEY (CategoryId)
+      REFERENCES CategoryMaster (ID) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT StatusID FOREIGN KEY (StatusID)
+      REFERENCES IssueStatusMaster (ID) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+CONSTRAINT TenantId FOREIGN KEY (TenantId)
+      REFERENCES TenantMaster (ID) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+
+  -- Table: " IssueAssignmentDetails "
+
+CREATE TABLE IssueAssignmentDetails
+(
+  ID integer NOT NULL,
+  IssueId integer NOT NULL,
+  AssignedBy integer NOT NULL,
+  AssignedTo integer NOT NULL,
+  AssignedOn datetime NOT NULL,
+  IsCurrent Boolean NOT NULL,
+ AdminComments text,
+ UnitTestCases text,
+ Environment text,
+ CreatedBy text NOT NULL,
+  CreatedOn datetime NOT NULL,
+  ModifiedBy text,
+  ModifiedOn datetime,
+  CONSTRAINT IssueAssignment_pkey PRIMARY KEY (ID ),
+CONSTRAINT IssueId FOREIGN KEY (IssueId)
+      REFERENCES IssueDetails (ID) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT AssignedBy FOREIGN KEY (AssignedBy)
+      REFERENCES UserDetails (ID) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+CONSTRAINT AssignedTo FOREIGN KEY (AssignedTo)
+      REFERENCES UserDetails (ID) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+-- Table: "IssueActivityMaster"
+CREATE TABLE IssueActivityMaster
+(
+  ID integer NOT NULL,
+  ActivityName text NOT NULL,
+  CreatedBy text NOT NULL,
+  CreatedOn datetime NOT NULL,
+  ModifiedBy text,
+  ModifiedOn datetime,
+  CONSTRAINT IssueActivityMaster_pkey PRIMARY KEY (ID)
+);
+-- Table: "IssueActivityDetails "
+CREATE TABLE IssueActivityDetails
+(
+  ID integer NOT NULL,
+ActivityID integer NOT NULL,
+IssueId integer NOT NULL,
+  DatetimeOfActivity datetime NOT NULL,
+  UserId integer NOT NULL,
+  CreatedBy text NOT NULL,
+  CreatedOn datetime NOT NULL,
+  ModifiedBy text,
+  ModifiedOn datetime,
+  CONSTRAINT IssueActivity_pkey PRIMARY KEY (ID ),
+  CONSTRAINT ActivityID FOREIGN KEY (ActivityID)
+      REFERENCES IssueActivityMaster (ID) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION,
+  CONSTRAINT IssueId_fkey FOREIGN KEY (IssueId)
+      REFERENCES IssueStatusMaster (ID) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+);
+
+
+
+
+-- Table: "QAComments "
+CREATE TABLE QAComments
+(
+  ID integer NOT NULL,
+  UserID integer,
+  IssueID integer,
+  Comments text,
+  AssignmentID integer,
+  CONSTRAINT QAComments PRIMARY KEY (ID )
+);
+

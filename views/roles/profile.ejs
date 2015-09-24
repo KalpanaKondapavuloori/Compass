@@ -1,0 +1,98 @@
+<% include ../header.ejs %>
+<div id="profile">
+    <!-- Example row of columns -->
+    <div class="container">
+        <% if(locals.err){ %>
+            <div class="alert alert-danger" role="alert"><%= err %></div>
+        <% } %>
+        <% if(locals.msg){ %>
+            <div class="alert alert-info alert-dismissible" role="alert">
+              <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+              <%= msg %>
+            </div>
+        <% } %>
+        <% if(!permissions.read){ %>
+            <div class="alert alert-danger" role="alert">You do not have permission to view this page.</div>
+        <% } else { %>
+            <% if(!locals.errOnly){ %>
+                <% var toPage = locals.toPage && parseInt(locals.toPage); toPage = isNaN(toPage) ? '' : '?page=' + toPage %>
+                <form class="form-horizontal" role="form" action="/roles/<% var profileID = (locals.profile && profile.id) || '' %><%= profileID %>" method="POST">
+                    <% if(permissions.create && !locals.profile){ %>
+                        <div class="header form-group">
+                            <div class="icon col-sm-2">
+                                <span class="icon-tree collection-detail-icon"></span>
+                            </div>
+                            <div class="title col-sm-10">
+                                <h3>
+                                    <input type="text" name="name" class="form-control" id="inputName" placeholder="Role Name">
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputPermissions" class="col-sm-2 control-label">Permissions</label>
+                            <div class="col-sm-10">
+                                <textarea name="permissions" class="form-control" id="inputPermissions" placeholder="JSON encoded permissions list"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <input type="hidden" name="_csrf" class="form-control" value="<%= locals._csrf %>">
+                                <a href="/roles<%= toPage %>" class="btn btn-primary btn-back">Back to Roles List</a>
+                                <button type="submit" class="btn btn-success pull-right">Create Role</button>
+                            </div>
+                        </div>
+                    <% } else if(permissions.update && locals.profile) { %>
+                        <div class="header form-group">
+                            <div class="icon col-sm-2">
+                                <span class="icon-tree collection-detail-icon"></span>
+                            </div>
+                            <div class="title col-sm-10">
+                                <h3>
+                                    <input type="text" name="name" class="form-control" id="inputName" placeholder="Role Name" <% if(profile.name){ %> value="<%= profile.name %>" <% } %>>
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputPermissions" class="col-sm-2 control-label">Permissions</label>
+                            <div class="col-sm-10">
+                                <textarea name="permissions" class="form-control" id="inputPermissions" placeholder="JSON encoded permissions list"><% if(profile.permissions){ %><%= profile.permissions %><% } %></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <input type="hidden" name="_csrf" class="form-control" value="<%= locals._csrf %>">
+                                <a href="/roles<%= toPage %>" class="btn btn-primary btn-back">Back to Roles List</a>
+                                <button type="submit" class="btn btn-success pull-right">Update Role</button>
+                            </div>
+                        </div>
+                    <% }  else if(locals.profile) { %>
+                        <div class="header form-group">
+                            <div class="icon col-sm-2">
+                                <span class="icon-tree collection-detail-icon"></span>
+                            </div>
+                            <div class="title col-sm-10">
+                                <h3>
+                                    <%= profile.name %>
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputPermissions" class="col-sm-2 control-label">Permissions</label>
+                            <div class="col-sm-10">
+                                <textarea name="permissions" class="form-control" id="inputPermissions" placeholder="JSON encoded permissions list" disabled><% if(profile.permissions){ %><%= profile.permissions %><% } %></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <input type="hidden" name="_csrf" class="form-control" value="<%= locals._csrf %>">
+                                <a href="/roles<%= toPage %>" class="btn btn-primary btn-back">Back to Roles List</a>
+                            </div>
+                        </div>
+                    <% } %>
+                </form>
+            <% } %>
+        <% } %>
+    </div>
+</div>
+<% include ../scripts.ejs %>
+<% include ../footer.ejs %>

@@ -1,0 +1,210 @@
+<% include ../header.ejs %>
+<div id="profile">
+    <!-- Example row of columns -->
+    <div class="container">
+        <% if(locals.err){ %>
+            <div class="alert alert-danger" role="alert"><%= err %></div>
+        <% } %>
+        <% if(locals.msg){ %>
+            <div class="alert alert-info alert-dismissible" role="alert">
+              <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+              <%= msg %>
+            </div>
+        <% } %>
+        <% if(!permissions.read){ %>
+            <div class="alert alert-danger" role="alert">You do not have permission to view this page.</div>
+        <% } else { %>
+            <% if(!locals.errOnly){ %>
+                <% var toPage = locals.toPage && parseInt(locals.toPage); toPage = isNaN(toPage) ? '' : '?page=' + toPage %>
+                <form class="form-horizontal" role="form" action="/users/<% var profileID = (locals.profile && profile.id) || '' %><%= profileID %>" method="POST">
+                    <% if(permissions.create && !locals.profile){ %>
+                        <div class="header form-group">
+                            <div class="icon col-sm-2">
+                                <span class="icon-user collection-detail-icon"></span>
+                            </div>
+                            <div class="title col-sm-10">
+                                <h3>
+                                    <input type="text" name="name" class="form-control" id="inputName" placeholder="Full Name">
+                                </h3>
+                                <h5>
+                                    <div class="pull-left">
+                                        <select name="role" class="form-control">
+                                            <option value="0">Select Role</option>
+                                            <% for(var i=0;i<roles.length;++i){ %>
+                                                <option value="<%= roles[i].id %>"><%= roles[i].name %></option>
+                                            <% } %>
+                                        </select>
+                                    </div>
+                                    <div class="pull-right">
+                                        <select name="project" class="form-control">
+                                            <option value="0">Select Project</option>
+                                            <% for(var i=0;i<projects.length;++i){ %>
+                                                <option value="<%= projects[i].id %>"><%= projects[i].name %></option>
+                                            <% } %>
+                                        </select>
+                                    </div>
+                                </h5>
+                            </div>
+                        </div>
+                        <!--<div class="form-group">
+                            <label for="inputAbout" class="col-sm-2 control-label">About</label>
+                            <div class="col-sm-10">
+                                <textarea name="about" class="form-control" id="inputAbout" placeholder="Enter something about yourself"></textarea>
+                            </div>
+                        </div>-->
+                        <div class="form-group">
+                            <label for="inputEmail" class="col-sm-2 control-label">Email</label>
+                            <div class="col-sm-10">
+                                <input type="email" name="email" class="form-control" id="inputEmail" placeholder="jack.daniels@positiveedge.net">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputPhone" class="col-sm-2 control-label">Phone</label>
+                            <div class="col-sm-10">
+                                <input type="tel" name="phone" class="form-control" id="inputPhone" placeholder="+91-9191919191">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputActive" class="col-sm-2 control-label">Active</label>
+                            <div class="col-sm-10">
+                                <input type="checkbox" name="active" class="form-control" id="inputActive" checked="yes">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <input type="hidden" name="_csrf" class="form-control" value="<%= locals._csrf %>">
+                                <a href="/users<%= toPage %>" class="btn btn-primary btn-back">Back to Users List</a>
+                                <button type="submit" class="btn btn-success pull-right">Create User</button>
+                            </div>
+                        </div>
+                    <% } else if((permissions.update && locals.profile) && (permissions.global || user.id == profile.id)) { %>
+                        <div class="header form-group">
+                            <div class="icon col-sm-2">
+                                <span class="icon-user collection-detail-icon"></span>
+                            </div>
+                            <div class="title col-sm-10">
+                                <h3>
+                                    <input type="text" name="name" class="form-control" id="inputName" placeholder="Full Name" <% if(profile.name){ %> value="<%= profile.name %>" <% } %>>
+                                </h3>
+                                <h5>
+                                    <div class="pull-left">
+                                        <% if(user.id !== profile.id && (permissions.update === true || (permissions.update.role !== false && permissions.update['default'] == true))) { %>
+                                            <select name="role" class="form-control">
+                                                <option value="0">Select Role</option>
+                                                <% for(var i=0;i<roles.length;++i){ %>
+                                                    <option value="<%= roles[i].id %>" <% if(locals.profile && profile.role && roles[i].id==profile.role){ %> selected <% } %>><%= roles[i].name %></option>
+                                                <% } %>
+                                            </select>
+                                        <% } else { %>
+                                            <% for(var i=0;i<roles.length;++i){ %>
+                                                <% if(profile.role && roles[i].id==profile.role){ %><%= roles[i].name %><% } %>
+                                                <input type="hidden" name="role" <% if(profile.role){ %> value="<%= profile.role %>" <% } %>>
+                                            <% } %>
+                                        <% } %>
+                                    </div>
+                                    <% if(permissions.update === true || (permissions.update.project !== false && permissions.update['default'] == true)) { %>
+                                        <div class="pull-right">
+                                            <select name="project" class="form-control">
+                                                <option value="0">Select Project</option>
+                                                <% for(var i=0;i<projects.length;++i){ %>
+                                                    <option value="<%= projects[i].id %>" <% if(locals.profile && profile.project && projects[i].id==profile.project){ %> selected <% } %>><%= projects[i].name %></option>
+                                                <% } %>
+                                            </select>
+                                        <div>
+                                    <% } else { %>
+                                        &nbsp;at <% for(var i=0;i<projects.length;++i){ %>
+                                            <% if(profile.role && projects[i].id==profile.project){ %><%= projects[i].name %><% } %>
+                                            <input type="hidden" name="project" <% if(profile.project){ %> value="<%= profile.project %>" <% } %>>                                        <% } %>
+                                    <% } %>
+                                </h5>
+                            </div>
+                        </div>
+                        <!--<div class="form-group">
+                            <label for="inputAbout" class="col-sm-2 control-label">About</label>
+                            <div class="col-sm-10">
+                                <textarea name="about" class="form-control" id="inputAbout" placeholder="Enter something about yourself"></textarea>
+                            </div>
+                        </div>-->
+                        <div class="form-group">
+                            <label for="inputEmail" class="col-sm-2 control-label">Email</label>
+                            <div class="col-sm-10">
+                                <input type="email" name="email" class="form-control" id="inputEmail" placeholder="jack.daniels@positiveedge.net" <% if(profile.email){ %> value="<%= profile.email %>" <% } %>>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputPhone" class="col-sm-2 control-label">Phone</label>
+                            <div class="col-sm-10">
+                                <input type="tel" name="phone" class="form-control" id="inputPhone" placeholder="+91-9191919191" <% if(profile.phone){ %> value="<%= profile.phone %>" <% } %>>
+                            </div>
+                        </div>
+                            <div class="form-group">
+                            <label for="inputActive" class="col-sm-2 control-label">Active</label>
+                            <div class="col-sm-10">
+                                <input type="checkbox" name="active" class="form-control" id="inputActive" <% if(profile.active==1){ %> checked="<%= profile.active %>" <% } %>>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <input type="hidden" name="_csrf" class="form-control" value="<%= locals._csrf %>">
+                                <a href="/users<%= toPage %>" class="btn btn-primary btn-back">Back to Users List</a>
+                                <button type="submit" class="btn btn-success pull-right">Update Profile</button>
+                            </div>
+                        </div>
+                    <% }  else if(locals.profile) { %>
+                        <div class="header form-group">
+                            <div class="icon col-sm-2">
+                                <span class="icon-user collection-detail-icon"></span>
+                            </div>
+                            <div class="title col-sm-10">
+                                <h3>
+                                    <%= profile.name %>
+                                </h3>
+                                <h5>
+                                    <% for(var i=0;i<roles.length;++i){ %>
+                                        <% if(profile.role && roles[i].id==profile.role){ %><%= roles[i].name %><% } %>
+                                    <% } %>at
+                                    <% for(var i=0;i<projects.length;++i){ %>
+                                        <% if(profile.project && projects[i].id==profile.project){ %><%= projects[i].name %><% } %>
+                                    <% } %>
+                                </h5>
+                            </div>
+                        </div>
+                        <!--<div class="form-group">
+                            <label for="inputAbout" class="col-sm-2 control-label">About</label>
+                            <div class="col-sm-10">
+                                <textarea name="about" class="form-control" id="inputAbout" placeholder="Enter something about yourself" disabled></textarea>
+                            </div>
+                        </div>-->
+                        <div class="form-group">
+                            <label for="inputEmail" class="col-sm-2 control-label">Email</label>
+                            <div class="col-sm-10">
+                                <input type="email" name="email" class="form-control" id="inputEmail" placeholder="jack.daniels@positiveedge.net" <% if(locals.profile && profile.email){ %> value="<%= profile.email %>" <% } %> disabled>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputPhone" class="col-sm-2 control-label">Phone</label>
+                            <div class="col-sm-10">
+                                <input type="tel" name="phone" class="form-control" id="inputPhone" placeholder="" <% if(locals.profile && profile.phone){ %> value="<%= profile.phone %>" <% } %> disabled>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="inputActive" class="col-sm-2 control-label">Active</label>
+                            <div class="col-sm-10">
+                                <input type="checkbox" name="active" class="form-control" id="inputActive" checked="<%= (locals.profile && profile.active) || 0 %>" disabled>
+
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <input type="hidden" name="_csrf" class="form-control" value="<%= locals._csrf %>">
+                                <a href="/users<%= toPage %>" class="btn btn-primary btn-back">Back to Users List</a>
+                            </div>
+                        </div>
+                    <% } %>
+                </form>
+            <% } %>
+        <% } %>
+    </div>
+</div>
+<% include ../scripts.ejs %>
+<% include ../footer.ejs %>
